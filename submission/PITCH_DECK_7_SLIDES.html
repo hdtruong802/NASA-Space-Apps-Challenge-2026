@@ -495,28 +495,30 @@
               <li>
                 <strong>Terrain-Normal Rover Kinematics:</strong> Bilinear <span class="mono">240 m</span>
                 height &amp; normal sampling (<span class="mono">roverPhysics.ts</span>), live
-                pitch/roll projection, <span class="mono">1&times;/10&times;/50&times;</span> gears,
+                pitch/roll projection, <span class="mono">1&times;&ndash;1000&times;</span> gears,
                 and <span class="mono">0.08 km</span> horizon cache.
               </li>
             </ul>
           </div>
 
-          <div class="card card-accent-emerald">
-            <h3>C. Illumination, Eclipses &amp; Scoring</h3>
-            <ul class="clean">
+          <div class="card card-accent-emerald" style="padding: 14px 18px">
+            <h3>C. Illumination, Eclipses &amp; Scientific Scoring</h3>
+            <ul class="clean" style="font-size: 13.3px; line-height: 1.38; gap: 6px">
               <li>
-                <strong>Solar Disk vs. Sun-Time:</strong> Separates
+                <strong>Solar Flux vs. Sun-Time:</strong> Separates
                 <span class="mono">sun_time_pct</span> (<span class="mono">disk_frac &gt; 0</span>)
-                from <span class="mono">sun_visible_pct</span> (mean visible disk fraction).
+                from mean unocculted disk <span class="mono">sun_visible_pct</span> (no grazing <span class="mono">&lt;0.266&deg;</span> over-credit).
               </li>
               <li>
-                <strong>Two-Circle Eclipse Obscuration:</strong> Models Earth's apparent radius
-                <span class="mono">asin(6378.137/dist)</span> overlapping the
-                <span class="mono">0.266&deg;</span> solar disk across 9 eclipses.
+                <strong>Two-Circle Eclipse Obscuration:</strong> Models Earth radius
+                <span class="mono">asin(6378.137/dist)</span> across the <span class="mono">0.266&deg;</span> solar disk (9 eclipses).
               </li>
               <li>
-                <strong>Team-Defined Viability Index:</strong>
-                <span class="mono">0.35 Sun + 0.25 DTE + 0.15 Joint + 0.15 Dark + 0.10 Slope&le;5&deg;</span>.
+                <strong>Viability MCDA (<span class="mono">&Sigma;w=1.0</span> in <span class="mono">[0,100]</span>, heuristic):</strong>
+                <span class="mono">0.35 Sun + 0.25 DTE + 0.15 Joint + 0.15 Dark(30d) + 0.10 Slope&le;5&deg;</span> —
+                <strong>50%</strong> power &amp; <span class="mono">30d</span>-synodic night survival,
+                <strong>40%</strong> relay-free DTE + Sun&cap;Earth overlap,
+                <strong>10%</strong> scale-bounded <span class="mono">240 m</span> slope (<span class="mono">n/a</span> outside DEM). Across 17 polar sites: separates ridges (<span class="mono">60.1–66.9</span>) from PSR (<span class="mono">1.0</span>), Spearman <span class="mono">&rho;=0.971–0.985</span> (<span class="mono">&plusmn;5 pp</span> shift).
               </li>
             </ul>
           </div>
@@ -544,15 +546,15 @@
             <ul class="clean">
               <li>
                 <strong>WebGL South Pole Mesh (<span class="mono">Lunar3DViewport.tsx</span>):</strong>
-                <span class="mono">250&times;250</span> LOLA surface (<span class="mono">&plusmn;150 km</span>)
-                with 5 overlays (<span class="mono">Regolith, Sun, Earth, Slope, Composite</span>),
-                JPL solar shadows, 4,000 stars, 3D Sun corona, Earth DTE beam &amp; 9 A3 polygons.
+                <span class="mono">250&times;250</span> LOLA surface (<span class="mono">&plusmn;150 km</span>, <span class="mono">1&times; Real</span> to <span class="mono">15&times;</span> relief),
+                5 overlays (<span class="mono">Regolith, Sun, Earth, Slope, Composite</span>),
+                JPL shadows, J2000 ICRS starfield (116 named + 7,200 Galactic stars), Milky Way GLSL dome, 7 deep-sky galaxies/nebulae, crescent Earth DTE beam &amp; 9 A3 polygons.
               </li>
               <li>
                 <strong>Interactive 6-Wheel Rover (<span class="mono">roverPhysics.ts</span>):</strong>
                 Drive via <span class="mono">WASD</span> / Arrows / HUD pad / click-to-waypoint
                 autopilot over <span class="mono">240 m</span> <span class="mono">dem_fine_240m.i16</span>
-                with live pitch/roll alignment &amp; <span class="mono">1&times;/10&times;/50&times;</span> gears.
+                with live pitch/roll alignment &amp; <span class="mono">1&times;&ndash;1000&times;</span> gears.
               </li>
               <li>
                 <strong>4 Camera Modes:</strong> <span class="mono">Rover Chase</span>,
@@ -610,14 +612,14 @@
             <div class="eyebrow">4 · Scientific Validity &amp; Automated Verification</div>
             <h2>Cross-Checked Against JPL Horizons, Peer-Reviewed Literature &amp; NASA PDS</h2>
           </div>
-          <span class="badge mono">10 Python Tests · 62 Vitest Tests · 0 Errors</span>
+          <span class="badge mono">10 Python Tests · 67 Vitest Tests · 0 Errors</span>
         </div>
 
-        <div style="margin: auto 0; display: flex; flex-direction: column; gap: 16px">
-          <div class="grid-2">
-            <div class="card card-accent-emerald">
-              <h3>JPL Horizons Topocentric Validation (6 Lunar Sites, 36,216 h)</h3>
-              <ul class="clean">
+        <div style="margin: auto 0; display: flex; flex-direction: column; gap: 10px">
+          <div class="grid-2" style="gap: 14px">
+            <div class="card card-accent-emerald" style="padding: 12px 16px">
+              <h3 style="margin-bottom: 6px">JPL Horizons Topocentric Validation (6 Lunar Sites, 36,216 h)</h3>
+              <ul class="clean" style="font-size: 13px; line-height: 1.35; gap: 4px">
                 <li>
                   Checked against direct JPL Horizons topocentric azimuth/elevation at
                   <em>Apollo 11, Chang'e-4, Chandrayaan-3, IM-1, IM-2,</em> and
@@ -634,65 +636,65 @@
               </ul>
             </div>
 
-            <div class="card card-accent-sky">
-              <h3>Automated Invariant &amp; Integration Test Suites</h3>
-              <ul class="clean">
+            <div class="card card-accent-sky" style="padding: 12px 16px">
+              <h3 style="margin-bottom: 6px">Automated Invariant &amp; Integration Test Suites</h3>
+              <ul class="clean" style="font-size: 13px; line-height: 1.35; gap: 4px">
                 <li>
                   <strong>Python Pipeline (<span class="mono">10/10 passed</span>):</strong> Schema
                   v2.0.0 contract, binary DEM byte parity vs. raw LOLA <span class="mono">.img</span>,
                   9 Artemis polygons, and <span class="mono">both &le; min(sun, earth)</span>.
                 </li>
                 <li>
-                  <strong>Webapp Vitest (<span class="mono">62 passed + 34 todo</span>):</strong> Horizons
-                  fixtures (794 samples &times; 6 sites), custom pin parity (&le; 2 pp), WP3 map, WP4 sky,
-                  WP5 UI, WP7 Mode A/B, &amp; WP8 3D terrain/rover physics + SSR fallback (7).
+                  <strong>Webapp Vitest (<span class="mono">67 passed + 34 todo</span>):</strong> Horizons
+                  fixtures (794 samples &times; 6 sites), custom pin parity (&le; 2 pp), WP3 map, WP4 J2000 sky,
+                  WP5 UI, WP7 Mode A/B, WP8 3D terrain/rover physics + SSR fallback, &amp; Viability rank robustness (<span class="mono">&rho; &ge; 0.97</span>).
                 </li>
               </ul>
             </div>
           </div>
 
-          <div class="card">
+          <div class="card" style="padding: 11px 16px">
             <h3 style="margin-bottom: 6px">
               South Pole Illumination Cross-Check (Visible In-App in <em>About &amp; Data</em> Modal)
             </h3>
-            <table class="data-table">
+            <table class="data-table" style="font-size: 11.8px; line-height: 1.25">
               <thead>
                 <tr>
-                  <th>Benchmark Target</th>
-                  <th>This App (2026–2030, 240 m @ 2 m Mast)</th>
-                  <th>Mazarico et al. (2011) (240 m @ 0 m)</th>
-                  <th>Gläser et al. (2018) (20 m @ 2 m)</th>
-                  <th>NASA PDS 240 m (18.6 yr @ 0 m)</th>
+                  <th style="padding: 6px 8px">Benchmark Target</th>
+                  <th style="padding: 6px 8px">This App (2026–30, 2 m Mast)</th>
+                  <th style="padding: 6px 8px">Mazarico et al. (2011) 0 m</th>
+                  <th style="padding: 6px 8px">Gläser et al. (2018) 20 m</th>
+                  <th style="padding: 6px 8px">NASA PDS 240 m (18.6 yr)</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td><strong>Connecting Ridge (C1)</strong></td>
-                  <td class="mono text-emerald">94.3% sun-time (90.1% disk) · 143 h dark</td>
-                  <td class="mono">89.0% mean (92.7% vis) · 141.1 h dark</td>
-                  <td class="mono">88.0% (92.1% vis) · 112 h dark</td>
-                  <td class="mono">93.48% (&plusmn;1 km max 93.48%)</td>
+                  <td style="padding: 6px 8px"><strong>Connecting Ridge (C1)</strong></td>
+                  <td style="padding: 6px 8px" class="mono text-emerald">94.3% time (90.1% disk) · 143 h</td>
+                  <td style="padding: 6px 8px" class="mono">89.0% mean (92.7% vis) · 141 h</td>
+                  <td style="padding: 6px 8px" class="mono">88.0% (92.1% vis) · 112 h</td>
+                  <td style="padding: 6px 8px" class="mono">93.48% (&plusmn;1 km: 93.48%)</td>
                 </tr>
                 <tr>
-                  <td><strong>Shackleton Rim (S)</strong></td>
-                  <td class="mono text-emerald">83.3% sun-time (77.9% disk) · 195 h dark</td>
-                  <td class="mono">86.7% mean (90.5% vis, at S)</td>
-                  <td class="mono">85.5% S0 / 82.1% S1</td>
-                  <td class="mono">81.76% (60 m &plusmn;1 km: 78.08%)</td>
+                  <td style="padding: 6px 8px"><strong>Shackleton Rim (S)</strong></td>
+                  <td style="padding: 6px 8px" class="mono text-emerald">83.3% time (77.9% disk) · 195 h</td>
+                  <td style="padding: 6px 8px" class="mono">86.7% mean (90.5% vis, at S)</td>
+                  <td style="padding: 6px 8px" class="mono">85.5% S0 / 82.1% S1</td>
+                  <td style="padding: 6px 8px" class="mono">81.76% (60 m: 78.08%)</td>
                 </tr>
                 <tr>
-                  <td><strong>Malapert Massif Summit</strong></td>
-                  <td class="mono text-emerald">79.0% sun-time (75.6% disk) · 366 h dark</td>
-                  <td class="mono">—</td>
-                  <td class="mono">—</td>
-                  <td class="mono">72.98% (&plusmn;1 km max 82.01%)</td>
+                  <td style="padding: 6px 8px"><strong>Malapert Summit</strong></td>
+                  <td style="padding: 6px 8px" class="mono text-emerald">79.0% time (75.6% disk) · 366 h</td>
+                  <td style="padding: 6px 8px" class="mono">—</td>
+                  <td style="padding: 6px 8px" class="mono">—</td>
+                  <td style="padding: 6px 8px" class="mono">72.98% (&plusmn;1 km: 82.01%)</td>
                 </tr>
                 <tr>
-                  <td><strong>Shackleton PSR Floor</strong></td>
-                  <td class="mono text-emerald">0.0% sun-time (0.0% disk) · permanent shadow</td>
-                  <td class="mono">—</td>
-                  <td class="mono">—</td>
-                  <td class="mono">0.00% (240 m &amp; 60 m PDS)</td>
+                  <td style="padding: 6px 8px"><strong>Shackleton PSR Floor</strong></td>
+                  <td style="padding: 6px 8px" class="mono text-emerald">0.0% time (0.0% disk) · PSR</td>
+                  <td style="padding: 6px 8px" class="mono">—</td>
+                  <td style="padding: 6px 8px" class="mono">—</td>
+                  <td style="padding: 6px 8px" class="mono">0.00% (240 m &amp; 60 m PDS)</td>
                 </tr>
               </tbody>
             </table>
