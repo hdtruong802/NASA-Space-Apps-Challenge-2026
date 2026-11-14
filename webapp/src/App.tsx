@@ -30,7 +30,11 @@ import {
 } from 'lucide-react';
 import { AboutModal } from './components/AboutModal';
 import { CandidateFinderPanel } from './components/CandidateFinderPanel';
-import { GettingStartedModal, type GettingStartedView } from './components/GettingStartedModal';
+import {
+  GettingStartedModal,
+  type GettingStartedView,
+  type OnboardingPresetId,
+} from './components/GettingStartedModal';
 import { GlossaryTerm } from './components/GlossaryTerm';
 import { HorizonSkyView } from './components/HorizonSkyView';
 import { LearnModal } from './components/LearnModal';
@@ -517,6 +521,7 @@ export function App(): React.ReactElement {
       return true;
     }
   });
+  const [tourStep, setTourStep] = useState<number | null>(null);
 
   const closeGettingStarted = useCallback(() => {
     setGettingStartedOpen(false);
@@ -527,9 +532,18 @@ export function App(): React.ReactElement {
     }
   }, []);
 
-  const navigateFromGettingStarted = useCallback((view: GettingStartedView) => {
-    setActiveView(view);
+  const navigateFromGettingStarted = useCallback(
+    (view: GettingStartedView) => {
+      setActiveView(view);
+      closeGettingStarted();
+    },
+    [closeGettingStarted],
+  );
+
+  const startInteractiveTour = useCallback(() => {
     closeGettingStarted();
+    setActiveView('surface3d');
+    setTourStep(0);
   }, [closeGettingStarted]);
 
   // WP7 candidates list in memory
@@ -1068,6 +1082,74 @@ export function App(): React.ReactElement {
       }
     },
     [demPatch, effectiveRoverState?.gearMultiplier, ensureClientDem, sites],
+  );
+
+  const handleRunOnboardingPreset = useCallback(
+    (preset: OnboardingPresetId) => {
+      closeGettingStarted();
+      if (preset === 'ridge_rover') {
+        const ridge = sites.find((s) => s.id === 'connecting_ridge');
+        setActiveView('surface3d');
+        setSurfaceLayer('composite');
+        if (ridge) {
+          handleDeployRoverToSite(ridge);
+        } else {
+          setSelectedSiteId('connecting_ridge');
+          setCustomSiteA(null);
+        }
+        return;
+      }
+      if (preset === 'malapert_dte') {
+        setSelectedSiteId('malapert_summit');
+        setCustomSiteA(null);
+        setSelectedCandidateId(null);
+        setMastHeightM(10);
+        setActiveView('split');
+        setMissionDockTab('sky');
+        setStatusNotice('Preset loaded: Malapert Massif at 10 m mast height in Command Split.');
+        return;
+      }
+      if (preset === 'total_eclipse') {
+        const totalEvt =
+          ephemeris?.eclipses.find((e) => e.type.toLowerCase().includes('total')) ??
+          ephemeris?.eclipses[0];
+        const targetIdx = totalEvt?.idx ?? 18687;
+        const maxIdx = Math.max(0, (ephemeris?.n ?? 1) - 1);
+        setSelectedSiteId('connecting_ridge');
+        setCustomSiteA(null);
+        setSelectedCandidateId(null);
+        setTimeIdx(Math.min(Math.max(0, targetIdx), maxIdx));
+        setActiveView('surface3d');
+        setMissionDockTab('timeline');
+        setStatusNotice(
+          totalEvt
+            ? `Jumped to solar eclipse (${totalEvt.start_utc}): watch the 3D corona dim.`
+            : 'Jumped to 2028-12-31 solar eclipse window.',
+        );
+        return;
+      }
+      if (preset === 'ridge_vs_psr') {
+        setSelectedSiteId('connecting_ridge');
+        setCustomSiteA(null);
+        setSelectedCandidateId(null);
+        setCompareSiteId('shackleton_psr');
+        setCustomSiteB(null);
+        setActiveView('compare');
+        setStatusNotice('Comparing Connecting Ridge against Shackleton Crater Floor (PSR).');
+        return;
+      }
+      if (preset === 'candidate_scan') {
+        setActiveView('directory');
+        void ensureCandidatesData();
+      }
+    },
+    [
+      closeGettingStarted,
+      ensureCandidatesData,
+      ephemeris,
+      handleDeployRoverToSite,
+      sites,
+    ],
   );
 
   const handleToggleCompareSite = useCallback((id: string) => {
@@ -1781,6 +1863,170 @@ export function App(): React.ReactElement {
 
       {/* Main Content Container */}
       <main className="relative z-10 mx-auto max-w-[1600px] space-y-4 px-3 py-4 sm:px-6">
+        {/* Non-Blocking Interactive 4-Step Guided Tour Bar */}
+        {tourStep !== null && (
+          <section
+            aria-label="Interactive guided tour"
+            className="nasa-panel flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-400/45 bg-gradient-to-r from-cyan-950/60 via-slate-900/90 to-amber-950/40 px-4 py-3 text-xs text-slate-100 shadow-lg"
+          >
+            <div className="min-w-[240px] flex-1 space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1 rounded-full border border-cyan-400/40 bg-cyan-500/15 px-2.5 py-0.5 font-semibold text-cyan-200">
+                  <Compass className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>Guided Tour · Step {tourStep + 1} of 4</span>
+                </span>
+                <span className="font-semibold text-amber-200">
+                  {tourStep === 0 && '3D Terrain & Rover Drive'}
+                  {tourStep === 1 && 'Telemetry KPIs & Mast Height'}
+                  {tourStep === 2 && '2026–2030 Timeline & 360° Sky'}
+                  {tourStep === 3 && 'Compare & Candidate Discovery'}
+                </span>
+              </div>
+              <p className="leading-relaxed text-slate-300">
+                {tourStep === 0 &&
+                  'Drag to orbit the 240 m South Pole mesh, click terrain for rover autopilot, or switch surface overlays and physical relief scale.'}
+                {tourStep === 1 &&
+                  'Each KPI ring separates instantaneous Solar Lit %, active-window Earth DTE %, 240 m slope, and 4.1-year Viability Index.'}
+                {tourStep === 2 &&
+                  'Use the bottom dock to scrub 36,216 JPL Horizons hours, jump to lunar eclipses, or inspect 360° horizon clearance.'}
+                {tourStep === 3 &&
+                  'Compare two targets side by side or scan polar cells under slope constraints before exporting a mission brief.'}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5">
+              {tourStep === 0 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => handleDeployRoverToSite(selectedSite)}
+                    className="rounded-lg border border-emerald-400/45 bg-emerald-500/15 px-2.5 py-1.5 font-semibold text-emerald-100 transition hover:bg-emerald-500/25"
+                  >
+                    Deploy Rover Here
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVerticalExaggeration((v) => (v === 1 ? 6 : 1))}
+                    className="rounded-lg border border-sky-400/45 bg-sky-500/15 px-2.5 py-1.5 font-semibold text-sky-100 transition hover:bg-sky-500/25"
+                  >
+                    {verticalExaggeration === 1 ? 'Switch to 6× Relief' : 'Try 1× Real Scale'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSurfaceLayer((prev) => (prev === 'composite' ? 'regolith' : 'composite'))
+                    }
+                    className="rounded-lg border border-amber-400/45 bg-amber-500/15 px-2.5 py-1.5 font-semibold text-amber-100 transition hover:bg-amber-500/25"
+                  >
+                    {surfaceLayer === 'composite' ? 'Regolith Layer' : 'Composite Layer'}
+                  </button>
+                </>
+              )}
+              {tourStep === 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setMastHeightM((m) => (m === 10 ? 2 : 10))}
+                    className="rounded-lg border border-sky-400/45 bg-sky-500/15 px-2.5 py-1.5 font-semibold text-sky-100 transition hover:bg-sky-500/25"
+                  >
+                    {mastHeightM === 10 ? 'Reset 2 m Mast' : 'Test 10 m Mast'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setScienceNotesOpen((open) => !open)}
+                    className="rounded-lg border border-amber-400/45 bg-amber-500/15 px-2.5 py-1.5 font-semibold text-amber-100 transition hover:bg-amber-500/25"
+                  >
+                    {scienceNotesOpen ? 'Hide Formula Notes' : 'Show Formula Notes'}
+                  </button>
+                </>
+              )}
+              {tourStep === 2 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setMissionDockTab('sky')}
+                    className="rounded-lg border border-cyan-400/45 bg-cyan-500/15 px-2.5 py-1.5 font-semibold text-cyan-100 transition hover:bg-cyan-500/25"
+                  >
+                    Open 360° Horizon Sky
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const totalEvt =
+                        ephemeris.eclipses.find((e) => e.type.toLowerCase().includes('total')) ??
+                        ephemeris.eclipses[0];
+                      const targetIdx = totalEvt?.idx ?? 18687;
+                      setTimeIdx(Math.min(Math.max(0, targetIdx), Math.max(0, ephemeris.n - 1)));
+                      setMissionDockTab('timeline');
+                    }}
+                    className="rounded-lg border border-rose-400/45 bg-rose-500/15 px-2.5 py-1.5 font-semibold text-rose-100 transition hover:bg-rose-500/25"
+                  >
+                    Jump to Eclipse
+                  </button>
+                </>
+              )}
+              {tourStep === 3 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setActiveView('compare')}
+                    className="rounded-lg border border-sky-400/45 bg-sky-500/15 px-2.5 py-1.5 font-semibold text-sky-100 transition hover:bg-sky-500/25"
+                  >
+                    Open Compare A vs B
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveView('directory');
+                      void ensureCandidatesData();
+                    }}
+                    className="rounded-lg border border-violet-400/45 bg-violet-500/15 px-2.5 py-1.5 font-semibold text-violet-100 transition hover:bg-violet-500/25"
+                  >
+                    Open Candidate Directory
+                  </button>
+                </>
+              )}
+
+              <span className="mx-1 hidden h-4 w-px bg-slate-700 sm:inline-block" aria-hidden="true" />
+
+              <button
+                type="button"
+                disabled={tourStep === 0}
+                onClick={() => setTourStep((s) => (s !== null ? Math.max(0, s - 1) : 0))}
+                className="rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 font-medium text-slate-200 transition hover:border-slate-500 disabled:opacity-40"
+              >
+                Prev
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (tourStep >= 3) {
+                    setTourStep(null);
+                  } else {
+                    const nextStep = tourStep + 1;
+                    setTourStep(nextStep);
+                    if (nextStep === 2) {
+                      setActiveView('surface3d');
+                      setMissionDockTab('timeline');
+                    }
+                  }
+                }}
+                className="rounded-lg border border-amber-400/45 bg-amber-500/20 px-3 py-1.5 font-semibold text-amber-100 transition hover:bg-amber-500/30"
+              >
+                {tourStep >= 3 ? 'Done' : 'Next'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setTourStep(null)}
+                aria-label="End guided tour"
+                className="rounded-lg border border-slate-700 bg-slate-900 p-1.5 text-slate-300 transition hover:bg-slate-800 hover:text-white"
+              >
+                <X className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+            </div>
+          </section>
+        )}
+
         {/* Alert / Notice Banners */}
         {urlWarnings.length > 0 && (
           <div
@@ -2882,6 +3128,19 @@ export function App(): React.ReactElement {
         open={gettingStartedOpen}
         onClose={closeGettingStarted}
         onNavigate={navigateFromGettingStarted}
+        currentView={
+          activeView === 'surface3d' ||
+          activeView === 'split' ||
+          activeView === 'map2d' ||
+          activeView === 'compare' ||
+          activeView === 'directory'
+            ? activeView
+            : 'surface3d'
+        }
+        onRunPreset={handleRunOnboardingPreset}
+        onStartInteractiveTour={startInteractiveTour}
+        onOpenLearn={() => setLearnOpen(true)}
+        onOpenAbout={() => setAboutOpen(true)}
       />
 
       <LearnModal

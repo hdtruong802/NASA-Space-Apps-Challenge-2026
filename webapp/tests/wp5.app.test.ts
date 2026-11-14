@@ -6,6 +6,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { AboutModal } from '../src/components/AboutModal';
 import { CandidateFinderPanel } from '../src/components/CandidateFinderPanel';
+import { GettingStartedModal } from '../src/components/GettingStartedModal';
 import { GlossaryTerm } from '../src/components/GlossaryTerm';
 import { LearnModal } from '../src/components/LearnModal';
 import { ScenarioComparePanel } from '../src/components/ScenarioComparePanel';
@@ -44,6 +45,7 @@ const WP5_SOURCE_FILES = [
   'src/main.tsx',
   'src/index.css',
   'src/components/AccessibleDialog.tsx',
+  'src/components/GettingStartedModal.tsx',
   'src/components/GlossaryTerm.tsx',
   'src/components/LearnModal.tsx',
   'src/components/AboutModal.tsx',
@@ -689,6 +691,25 @@ describe('WP5 App Shell, Scenarios, Candidates & Copy Hygiene', () => {
     expect(aboutHtml).toContain('AVGVISIB_65S_240M_201608.IMG');
     expect(aboutHtml).toContain('Connecting Ridge (C1)');
     expect(aboutHtml).toContain('93.48%');
+
+    const gettingStartedHtml = renderToStaticMarkup(
+      React.createElement(GettingStartedModal, {
+        open: true,
+        onClose: () => {},
+        onNavigate: () => {},
+        currentView: 'surface3d',
+        onRunPreset: () => {},
+        onStartInteractiveTour: () => {},
+        onOpenLearn: () => {},
+        onOpenAbout: () => {},
+      }),
+    );
+    expect(gettingStartedHtml).toContain('role="dialog"');
+    expect(gettingStartedHtml).toContain('aria-modal="true"');
+    expect(gettingStartedHtml).toContain('1 · Choose &amp; Quick-Start');
+    expect(gettingStartedHtml).toContain('2 · 5 Workspaces');
+    expect(gettingStartedHtml).toContain('Drive the 3D Rover on Connecting Ridge');
+    expect(gettingStartedHtml).toContain('Start Interactive Tour (4 Steps)');
 
     // Keyboard & touch accessible GlossaryTerm button semantics
     const glossaryHtml = renderToStaticMarkup(
