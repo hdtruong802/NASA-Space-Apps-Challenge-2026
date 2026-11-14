@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Activity,
   AlertTriangle,
+  Bot,
   ChevronDown,
   ChevronUp,
   Columns2,
@@ -41,6 +42,7 @@ import { GlossaryTerm } from './components/GlossaryTerm';
 import { HorizonSkyView } from './components/HorizonSkyView';
 import { Lunar3DViewport, type SurfaceOverlayLayer } from './components/Lunar3DViewport';
 import { MissionTimeline } from './components/MissionTimeline';
+import { NasaRagChatbot } from './components/NasaRagChatbot';
 import { PolarMapCanvas } from './components/PolarMapCanvas';
 import {
   type ComparisonPresetId,
@@ -83,6 +85,7 @@ import {
   type RoverState,
   type TerrainCameraMode,
 } from './lib/roverPhysics';
+import type { RagActionId, RagLiveContext } from './lib/nasaRag';
 import { findCuratedSiteNear, normalizeSites, SCORE_FORMULA_TEXT } from './lib/scoring';
 import type {
   ArtemisRegion,
@@ -523,7 +526,9 @@ export function App(): React.ReactElement {
     }
   });
   const [tourStep, setTourStep] = useState<number | null>(null);
+  const [tourPulse, setTourPulse] = useState<number>(0);
   const [focusedKpiIndex, setFocusedKpiIndex] = useState<number>(0);
+  const [ragChatOpen, setRagChatOpen] = useState<boolean>(false);
 
   const closeGettingStarted = useCallback(() => {
     setGettingStartedOpen(false);
@@ -542,18 +547,55 @@ export function App(): React.ReactElement {
     [closeGettingStarted],
   );
 
-  const startSectionTour = useCallback(
-    (sectionId: OnboardingSectionId = 'header') => {
-      closeGettingStarted();
-      const idx = ONBOARDING_SECTIONS.findIndex((sec) => sec.id === sectionId);
-      setActiveView('surface3d');
+  const applyTourSectionContext = useCallback(
+    (sectionId: OnboardingSectionId) => {
+      if (sectionId === 'viewport_rover') {
+        if (activeView !== 'surface3d') {
+          setActiveView('surface3d');
+        }
+      } else if (sectionId !== 'header' && sectionId !== 'workspaces') {
+        if (activeView === 'compare' || activeView === 'directory') {
+          setActiveView('surface3d');
+        }
+      }
       if (sectionId === 'science_notes') {
         setScienceNotesOpen(true);
       }
+      if (sectionId === 'mission_dock') {
+        setMissionDockTab('timeline');
+      }
       setFocusedKpiIndex(0);
-      setTourStep(idx >= 0 ? idx : 0);
     },
-    [closeGettingStarted],
+    [activeView],
+  );
+
+  const startSectionTour = useCallback(
+    (sectionId: OnboardingSectionId = 'header') => {
+      const wasModalOpen = gettingStartedOpen;
+      closeGettingStarted();
+      const idx = ONBOARDING_SECTIONS.findIndex((sec) => sec.id === sectionId);
+      if (!wasModalOpen && tourStep !== null && ONBOARDING_SECTIONS[tourStep]?.id === sectionId) {
+        const card =
+          typeof document !== 'undefined'
+            ? document.querySelector(`[data-tour-card="${sectionId}"]`)
+            : null;
+        if (card && typeof window !== 'undefined') {
+          const rect = card.getBoundingClientRect();
+          if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
+            setTourStep(null);
+            return;
+          }
+        }
+        applyTourSectionContext(sectionId);
+        setTourPulse((p) => p + 1);
+        return;
+      }
+
+      applyTourSectionContext(sectionId);
+      setTourStep(idx >= 0 ? idx : 0);
+      setTourPulse((p) => p + 1);
+    },
+    [applyTourSectionContext, closeGettingStarted, gettingStartedOpen, tourStep],
   );
 
   const startInteractiveTour = useCallback(() => {
@@ -567,14 +609,19 @@ export function App(): React.ReactElement {
     if (section.id === 'science_notes') {
       setScienceNotesOpen(true);
     }
+    if (section.id === 'header' || section.id === 'workspaces') {
+      return;
+    }
     const timer = window.setTimeout(() => {
-      const target = document.querySelector(`[data-tour-section="${section.id}"]`);
+      const target =
+        document.querySelector(`[data-tour-card="${section.id}"]`) ??
+        document.querySelector(`[data-tour-section="${section.id}"]`);
       if (target && typeof target.scrollIntoView === 'function') {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }, 80);
     return () => window.clearTimeout(timer);
-  }, [tourStep]);
+  }, [tourStep, tourPulse]);
 
   // WP7 candidates list in memory
   const [candidates, setCandidates] = useState<SiteCandidate[]>([]);
@@ -1650,23 +1697,106 @@ export function App(): React.ReactElement {
   const isSpatialWorkspace =
     activeView === 'surface3d' || activeView === 'split' || activeView === 'map2d';
 
+  const ragLiveContext: RagLiveContext = {
+    selectedSite,
+    compareSite,
+    ephemeris,
+    sites,
+    utcIso: instant.utcIso,
+    mastHeightM,
+    earthMaskDeg,
+    windowHours,
+    trackingPct,
+    horizontalPct,
+    sunElevDeg: instant.sunElDeg,
+    earthElevDeg: instant.earthElDeg,
+    dteClear: instant.earthVisible,
+    windowSunPct: summary.sunPct,
+    windowEarthPct: summary.earthPct,
+    windowJointPct: summary.bothPct,
+    maxDarkHours: summary.maxDarkHours,
+    viabilityScore,
+    activeView,
+    hasClientDem: clientDem !== null,
+  };
+
+  const handleTriggerRagAction = (action: RagActionId) => {
+    switch (action) {
+      case 'deploy_rover':
+        setActiveView('surface3d');
+        handleDeployRoverToSite(selectedSite);
+        break;
+      case 'jump_eclipse': {
+        const totalEvt =
+          ephemeris.eclipses.find((e) => e.type.toLowerCase().includes('total')) ??
+          ephemeris.eclipses[0];
+        const targetIdx = totalEvt?.idx ?? 18687;
+        setTimeIdx(Math.min(Math.max(0, targetIdx), Math.max(0, ephemeris.n - 1)));
+        setActiveView('surface3d');
+        setMissionDockTab('timeline');
+        setStatusNotice(
+          totalEvt
+            ? `Jumped to solar eclipse (${totalEvt.start_utc}): watch the 3D corona dim.`
+            : 'Jumped to 2028-12-31 solar eclipse window.',
+        );
+        break;
+      }
+      case 'open_tour':
+        closeGettingStarted();
+        setFocusedKpiIndex(0);
+        setTourStep(0);
+        setTourPulse((p) => p + 1);
+        break;
+      case 'open_compare':
+        setActiveView('compare');
+        break;
+      case 'open_directory':
+        setActiveView('directory');
+        void ensureCandidatesData();
+        break;
+      case 'load_hd_dem':
+        void ensureClientDem();
+        break;
+      case 'open_physics_tab':
+        setRagChatOpen(false);
+        setGettingStartedTab(3);
+        setGettingStartedOpen(true);
+        break;
+    }
+  };
+
   const activeTourSection =
     tourStep !== null ? (ONBOARDING_SECTIONS[tourStep] ?? null) : null;
   const isTourSectionFocused = (sectionId: OnboardingSectionId): boolean =>
     activeTourSection?.id === sectionId;
 
+  const explainButtonClass = (
+    sectionId: OnboardingSectionId,
+    sizeClass = 'rounded-lg px-2.5 py-1',
+  ): string => {
+    const active = isTourSectionFocused(sectionId);
+    const base =
+      'inline-flex shrink-0 items-center gap-1 whitespace-nowrap border text-xs font-medium transition';
+    const tone = active
+      ? 'border-amber-400/75 bg-amber-500/20 text-amber-100 ring-1 ring-amber-400/40'
+      : 'border-slate-700/80 bg-slate-900/80 text-slate-300 hover:border-cyan-400/50 hover:text-cyan-200';
+    return `${base} ${sizeClass} ${tone}`;
+  };
+
   const advanceTourStep = (delta: number) => {
-    setTourStep((prev) => {
-      if (prev === null) return null;
-      const next = prev + delta;
-      if (next >= ONBOARDING_SECTIONS.length) return null;
-      const clamped = Math.max(0, next);
-      const nextSec = ONBOARDING_SECTIONS[clamped];
-      setActiveView('surface3d');
-      if (nextSec?.id === 'science_notes') setScienceNotesOpen(true);
-      if (nextSec?.id === 'mission_dock') setMissionDockTab('timeline');
-      return clamped;
-    });
+    if (tourStep === null) return;
+    const next = tourStep + delta;
+    if (next >= ONBOARDING_SECTIONS.length) {
+      setTourStep(null);
+      return;
+    }
+    const clamped = Math.max(0, next);
+    const nextSec = ONBOARDING_SECTIONS[clamped];
+    if (nextSec) {
+      applyTourSectionContext(nextSec.id);
+    }
+    setTourStep(clamped);
+    setTourPulse((p) => p + 1);
   };
 
   const renderSectionGuideCard = (sectionId: OnboardingSectionId) => {
@@ -1681,6 +1811,7 @@ export function App(): React.ReactElement {
 
     return (
       <aside
+        data-tour-card={sectionId}
         aria-label={`Section ${activeTourSection.stepNumber} explanation guide`}
         className="nasa-panel rounded-2xl border-amber-400/50 bg-[linear-gradient(135deg,rgba(8,47,73,0.72),rgba(15,23,42,0.92),rgba(69,26,3,0.45))] p-4 text-xs text-slate-100 shadow-[0_18px_45px_-20px_rgba(251,191,36,0.45)] space-y-3"
       >
@@ -1920,7 +2051,11 @@ export function App(): React.ReactElement {
               <button
                 key={sec.id}
                 type="button"
-                onClick={() => setTourStep(idx)}
+                onClick={() => {
+                  applyTourSectionContext(sec.id);
+                  setTourStep(idx);
+                  setTourPulse((p) => p + 1);
+                }}
                 className={`rounded-lg px-2 py-1 font-mono text-xs transition ${
                   tourStep === idx
                     ? 'bg-amber-500/25 text-amber-100 ring-1 ring-amber-400/60 font-semibold'
@@ -1982,7 +2117,7 @@ export function App(): React.ReactElement {
         <div className="mx-auto max-w-[1600px] px-3 py-2 sm:px-6">
           <div
             data-tour-section="header"
-            className={`lg:scroll-mt-8 flex flex-col gap-2 xl:flex-row xl:items-center xl:justify-between transition ${
+            className={`lg:scroll-mt-8 flex flex-col gap-2 xl:flex-row xl:flex-wrap xl:items-center xl:justify-between transition ${
               isTourSectionFocused('header')
                 ? 'rounded-2xl p-2 ring-2 ring-amber-400/90 shadow-[0_0_0_4px_rgba(251,191,36,0.16),0_0_35px_rgba(56,189,248,0.28)]'
                 : ''
@@ -2004,7 +2139,7 @@ export function App(): React.ReactElement {
                     <h1 className="truncate text-base font-bold tracking-tight text-slate-50 sm:text-lg">
                       Lunar Landing Site Navigator
                     </h1>
-                    <span className="hidden rounded-full border border-amber-400/35 bg-amber-500/15 px-2 py-0.5 font-mono text-xs font-medium text-amber-200 sm:inline-flex">
+                    <span className="hidden rounded-full border border-amber-400/35 bg-amber-500/15 px-2 py-0.5 font-mono text-xs font-medium text-amber-200 2xl:inline-flex">
                       South Pole 3D
                     </span>
                   </div>
@@ -2028,7 +2163,7 @@ export function App(): React.ReactElement {
                     const val = e.target.value;
                     if (val !== '__custom__') handleSelectCuratedSite(val);
                   }}
-                  className="max-w-[200px] rounded-xl border border-sky-400/30 bg-[#050b1c]/90 px-3 py-1.5 text-xs font-medium text-slate-100 shadow-inner focus:border-amber-400 focus:outline-none sm:max-w-[235px]"
+                  className="max-w-[200px] rounded-xl border border-sky-400/30 bg-[#050b1c]/90 px-3 py-1.5 text-xs font-medium text-slate-100 shadow-inner focus:border-amber-400 focus:outline-none sm:max-w-[235px] xl:max-w-[195px] 2xl:max-w-[235px]"
                 >
                   {customSiteA && (
                     <option value="__custom__">
@@ -2068,9 +2203,9 @@ export function App(): React.ReactElement {
             </div>
 
             {/* Verified Ephemeris Badge & Utility Modals */}
-            <div className="flex flex-wrap items-center gap-1.5 xl:flex-nowrap xl:gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 2xl:flex-nowrap xl:gap-1.5">
               <div
-                className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-emerald-500/35 bg-emerald-950/35 px-2.5 py-1.5 text-xs text-emerald-200"
+                className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-emerald-500/35 bg-emerald-950/35 px-2 py-1.5 text-xs text-emerald-200"
                 title="Topocentric ENU solar and Earth vectors verified against JPL Horizons DE441 checkpoints"
               >
                 <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400" aria-hidden="true" />
@@ -2079,16 +2214,30 @@ export function App(): React.ReactElement {
                 </span>
               </div>
 
-              <span className="hidden whitespace-nowrap rounded-xl border border-slate-700/70 bg-slate-900/80 px-2.5 py-1.5 font-mono text-xs text-slate-300 2xl:inline-flex">
+              <span className="hidden whitespace-nowrap rounded-xl border border-slate-700/70 bg-slate-900/80 px-2 py-1.5 font-mono text-xs text-slate-300 2xl:inline-flex">
                 {sites.length} Sites · {ephemeris.n.toLocaleString('en-US')}h
               </span>
+
+              <button
+                type="button"
+                onClick={() => setRagChatOpen((prev) => !prev)}
+                aria-expanded={ragChatOpen}
+                className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl border px-2 py-1.5 text-xs font-medium transition ${
+                  ragChatOpen
+                    ? 'border-cyan-400/75 bg-cyan-500/20 text-cyan-100 ring-1 ring-cyan-400/40'
+                    : 'border-cyan-500/40 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20'
+                }`}
+              >
+                <Bot className="h-3.5 w-3.5 text-cyan-300" aria-hidden="true" />
+                <span>NASA AI Chat</span>
+              </button>
 
               <button
                 type="button"
                 onClick={() => {
                   void handleCopyShareLink();
                 }}
-                className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl border border-slate-700/80 bg-slate-900/80 px-2.5 py-1.5 text-xs font-medium text-slate-200 transition hover:border-sky-400/50 hover:text-sky-200"
+                className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl border border-slate-700/80 bg-slate-900/80 px-2 py-1.5 text-xs font-medium text-slate-200 transition hover:border-sky-400/50 hover:text-sky-200"
               >
                 <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>{copiedShareUrl ? 'Copied URL' : 'Share'}</span>
@@ -2097,7 +2246,7 @@ export function App(): React.ReactElement {
               <button
                 type="button"
                 onClick={handleExportBrief}
-                className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl border border-slate-700/80 bg-slate-900/80 px-2.5 py-1.5 text-xs font-medium text-slate-200 transition hover:border-amber-400/50 hover:text-amber-200"
+                className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl border border-slate-700/80 bg-slate-900/80 px-2 py-1.5 text-xs font-medium text-slate-200 transition hover:border-amber-400/50 hover:text-amber-200"
               >
                 <Download className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>Export Brief</span>
@@ -2109,7 +2258,7 @@ export function App(): React.ReactElement {
                   setGettingStartedTab(0);
                   setGettingStartedOpen(true);
                 }}
-                className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl border border-amber-500/35 bg-amber-500/10 px-2.5 py-1.5 text-xs font-medium text-amber-200 transition hover:bg-amber-500/20"
+                className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl border border-amber-500/35 bg-amber-500/10 px-2 py-1.5 text-xs font-medium text-amber-200 transition hover:bg-amber-500/20"
               >
                 <Compass className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>Getting Started</span>
@@ -2118,10 +2267,25 @@ export function App(): React.ReactElement {
               <button
                 type="button"
                 onClick={() => setAboutOpen(true)}
-                className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl border border-slate-700/80 bg-slate-900/80 px-2.5 py-1.5 text-xs font-medium text-slate-200 transition hover:border-slate-500"
+                className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl border border-slate-700/80 bg-slate-900/80 px-2 py-1.5 text-xs font-medium text-slate-200 transition hover:border-slate-500"
               >
                 <Info className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>About &amp; Data</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => startSectionTour('header')}
+                aria-expanded={isTourSectionFocused('header')}
+                className={explainButtonClass('header', 'rounded-xl px-2 py-1.5')}
+              >
+                <HelpCircle
+                  className={`h-3.5 w-3.5 ${
+                    isTourSectionFocused('header') ? 'text-amber-300' : 'text-cyan-300'
+                  }`}
+                  aria-hidden="true"
+                />
+                <span>{isTourSectionFocused('header') ? 'Hide Explain' : 'Explain Header'}</span>
               </button>
             </div>
           </div>
@@ -2222,85 +2386,95 @@ export function App(): React.ReactElement {
             <button
               type="button"
               onClick={() => startSectionTour('workspaces')}
-              className="hidden items-center gap-1 rounded-lg border border-slate-700/70 bg-slate-900/75 px-2.5 py-1 text-xs font-medium text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200 md:inline-flex"
+              aria-expanded={isTourSectionFocused('workspaces')}
+              className={explainButtonClass('workspaces')}
             >
-              <HelpCircle className="h-3.5 w-3.5 text-cyan-300" aria-hidden="true" />
-              <span>Explain Section</span>
+              <HelpCircle
+                className={`h-3.5 w-3.5 ${
+                  isTourSectionFocused('workspaces') ? 'text-amber-300' : 'text-cyan-300'
+                }`}
+                aria-hidden="true"
+              />
+              <span>
+                {isTourSectionFocused('workspaces') ? 'Hide Explain' : 'Explain Section'}
+              </span>
             </button>
           </div>
+
+          {tourStep !== null &&
+            activeTourSection &&
+            (activeTourSection.id === 'header' || activeTourSection.id === 'workspaces') && (
+              <div className="mt-2.5 max-h-[68vh] overflow-y-auto">
+                {renderSectionGuideCard(activeTourSection.id)}
+              </div>
+            )}
         </div>
       </header>
 
       {/* Main Content Container */}
       <main className="relative z-10 mx-auto max-w-[1600px] space-y-4 px-3 py-4 sm:px-6">
-        {/* 7-Section Interactive Walkthrough Navigator + Top Anchored Explanation Card */}
+        {/* 7-Section Interactive Walkthrough Navigator */}
         {tourStep !== null && activeTourSection && (
-          <div className="space-y-3">
-            <section
-              aria-label="Interactive guided tour"
-              className="nasa-panel flex flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-cyan-400/45 bg-gradient-to-r from-cyan-950/60 via-slate-900/90 to-amber-950/40 px-4 py-2.5 text-xs text-slate-100 shadow-lg"
-            >
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/40 bg-cyan-500/15 px-2.5 py-0.5 font-semibold text-cyan-200">
-                  <Compass className="h-3.5 w-3.5" aria-hidden="true" />
-                  <span>
-                    Section Walkthrough · {activeTourSection.stepNumber} /{' '}
-                    {ONBOARDING_SECTIONS.length}
-                  </span>
+          <section
+            aria-label="Interactive guided tour"
+            className="nasa-panel flex flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-cyan-400/45 bg-gradient-to-r from-cyan-950/60 via-slate-900/90 to-amber-950/40 px-4 py-2.5 text-xs text-slate-100 shadow-lg"
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/40 bg-cyan-500/15 px-2.5 py-0.5 font-semibold text-cyan-200">
+                <Compass className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>
+                  Section Walkthrough · {activeTourSection.stepNumber} /{' '}
+                  {ONBOARDING_SECTIONS.length}
                 </span>
-                <div className="flex flex-wrap items-center gap-1">
-                  {ONBOARDING_SECTIONS.map((sec, idx) => (
-                    <button
-                      key={sec.id}
-                      type="button"
-                      onClick={() => {
-                        setActiveView('surface3d');
-                        if (sec.id === 'science_notes') setScienceNotesOpen(true);
-                        if (sec.id === 'mission_dock') setMissionDockTab('timeline');
-                        setTourStep(idx);
-                      }}
-                      className={`rounded-lg px-2 py-1 font-mono text-xs transition ${
-                        tourStep === idx
-                          ? 'bg-amber-500/25 text-amber-100 ring-1 ring-amber-400/60 font-semibold'
-                          : 'bg-slate-900/75 text-slate-300 hover:bg-slate-800 hover:text-white'
-                      }`}
-                    >
-                      {sec.stepNumber}·{sec.shortLabel}
-                    </button>
-                  ))}
-                </div>
+              </span>
+              <div className="flex flex-wrap items-center gap-1">
+                {ONBOARDING_SECTIONS.map((sec, idx) => (
+                  <button
+                    key={sec.id}
+                    type="button"
+                    onClick={() => {
+                      applyTourSectionContext(sec.id);
+                      setTourStep(idx);
+                      setTourPulse((p) => p + 1);
+                    }}
+                    className={`rounded-lg px-2 py-1 font-mono text-xs transition ${
+                      tourStep === idx
+                        ? 'bg-amber-500/25 text-amber-100 ring-1 ring-amber-400/60 font-semibold'
+                        : 'bg-slate-900/75 text-slate-300 hover:bg-slate-800 hover:text-white'
+                    }`}
+                  >
+                    {sec.stepNumber}·{sec.shortLabel}
+                  </button>
+                ))}
               </div>
+            </div>
 
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  disabled={tourStep === 0}
-                  onClick={() => advanceTourStep(-1)}
-                  className="rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1 font-medium text-slate-200 transition hover:border-slate-500 disabled:opacity-40"
-                >
-                  Prev
-                </button>
-                <button
-                  type="button"
-                  onClick={() => advanceTourStep(1)}
-                  className="rounded-lg border border-amber-400/45 bg-amber-500/20 px-3 py-1 font-semibold text-amber-100 transition hover:bg-amber-500/30"
-                >
-                  {tourStep >= ONBOARDING_SECTIONS.length - 1 ? 'Done' : 'Next'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTourStep(null)}
-                  aria-label="End guided tour"
-                  className="rounded-lg border border-slate-700 bg-slate-900 p-1.5 text-slate-300 transition hover:bg-slate-800 hover:text-white"
-                >
-                  <X className="h-3.5 w-3.5" aria-hidden="true" />
-                </button>
-              </div>
-            </section>
-
-            {(activeTourSection.id === 'header' || activeTourSection.id === 'workspaces') &&
-              renderSectionGuideCard(activeTourSection.id)}
-          </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                disabled={tourStep === 0}
+                onClick={() => advanceTourStep(-1)}
+                className="rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1 font-medium text-slate-200 transition hover:border-slate-500 disabled:opacity-40"
+              >
+                Prev
+              </button>
+              <button
+                type="button"
+                onClick={() => advanceTourStep(1)}
+                className="rounded-lg border border-amber-400/45 bg-amber-500/20 px-3 py-1 font-semibold text-amber-100 transition hover:bg-amber-500/30"
+              >
+                {tourStep >= ONBOARDING_SECTIONS.length - 1 ? 'Done' : 'Next'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setTourStep(null)}
+                aria-label="End guided tour"
+                className="rounded-lg border border-slate-700 bg-slate-900 p-1.5 text-slate-300 transition hover:bg-slate-800 hover:text-white"
+              >
+                <X className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+            </div>
+          </section>
         )}
 
         {/* Alert / Notice Banners */}
@@ -2621,11 +2795,23 @@ export function App(): React.ReactElement {
                   <button
                     type="button"
                     onClick={() => startSectionTour('hud_probe')}
-                    aria-label="Explain relief scale, 240 m HD DEM, and coordinate probe controls"
-                    className="inline-flex items-center gap-1 rounded-lg border border-slate-700/80 bg-slate-900/80 px-2 py-1 text-xs font-medium text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200"
+                    aria-expanded={isTourSectionFocused('hud_probe')}
+                    aria-label={
+                      isTourSectionFocused('hud_probe')
+                        ? 'Hide explanation for relief scale, 240 m HD DEM, and coordinate probe controls'
+                        : 'Explain relief scale, 240 m HD DEM, and coordinate probe controls'
+                    }
+                    className={explainButtonClass('hud_probe', 'rounded-lg px-2 py-1')}
                   >
-                    <HelpCircle className="h-3.5 w-3.5 text-cyan-300" aria-hidden="true" />
-                    <span className="hidden sm:inline">Explain</span>
+                    <HelpCircle
+                      className={`h-3.5 w-3.5 ${
+                        isTourSectionFocused('hud_probe') ? 'text-amber-300' : 'text-cyan-300'
+                      }`}
+                      aria-hidden="true"
+                    />
+                    <span className="hidden sm:inline">
+                      {isTourSectionFocused('hud_probe') ? 'Hide Explain' : 'Explain'}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -2735,10 +2921,22 @@ export function App(): React.ReactElement {
                     <button
                       type="button"
                       onClick={() => startSectionTour('viewport_rover')}
-                      className="inline-flex items-center gap-1 rounded-lg border border-slate-700/80 bg-slate-900/80 px-2.5 py-1 text-xs font-medium text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200"
+                      aria-expanded={isTourSectionFocused('viewport_rover')}
+                      className={explainButtonClass('viewport_rover')}
                     >
-                      <HelpCircle className="h-3.5 w-3.5 text-cyan-300" aria-hidden="true" />
-                      <span>Explain 3D &amp; Rover</span>
+                      <HelpCircle
+                        className={`h-3.5 w-3.5 ${
+                          isTourSectionFocused('viewport_rover')
+                            ? 'text-amber-300'
+                            : 'text-cyan-300'
+                        }`}
+                        aria-hidden="true"
+                      />
+                      <span>
+                        {isTourSectionFocused('viewport_rover')
+                          ? 'Hide Explain'
+                          : 'Explain 3D & Rover'}
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -2887,10 +3085,18 @@ export function App(): React.ReactElement {
                 <button
                   type="button"
                   onClick={() => startSectionTour('kpi_gauges')}
-                  className="inline-flex items-center gap-1 rounded-lg border border-slate-700/80 bg-slate-900/80 px-2.5 py-1 text-xs font-medium text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200"
+                  aria-expanded={isTourSectionFocused('kpi_gauges')}
+                  className={explainButtonClass('kpi_gauges')}
                 >
-                  <HelpCircle className="h-3.5 w-3.5 text-cyan-300" aria-hidden="true" />
-                  <span>Explain 4 KPIs &amp; %</span>
+                  <HelpCircle
+                    className={`h-3.5 w-3.5 ${
+                      isTourSectionFocused('kpi_gauges') ? 'text-amber-300' : 'text-cyan-300'
+                    }`}
+                    aria-hidden="true"
+                  />
+                  <span>
+                    {isTourSectionFocused('kpi_gauges') ? 'Hide Explain' : 'Explain 4 KPIs & %'}
+                  </span>
                 </button>
               </div>
               <section
@@ -3169,10 +3375,18 @@ export function App(): React.ReactElement {
                   <button
                     type="button"
                     onClick={() => startSectionTour('science_notes')}
-                    className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-slate-700/80 bg-slate-900/80 px-2.5 py-1 text-xs font-medium text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200"
+                    aria-expanded={isTourSectionFocused('science_notes')}
+                    className={explainButtonClass('science_notes')}
                   >
-                    <HelpCircle className="h-3.5 w-3.5 text-cyan-300" aria-hidden="true" />
-                    <span className="hidden sm:inline">Explain Notes</span>
+                    <HelpCircle
+                      className={`h-3.5 w-3.5 ${
+                        isTourSectionFocused('science_notes') ? 'text-amber-300' : 'text-cyan-300'
+                      }`}
+                      aria-hidden="true"
+                    />
+                    <span className="hidden sm:inline">
+                      {isTourSectionFocused('science_notes') ? 'Hide Explain' : 'Explain Notes'}
+                    </span>
                   </button>
                 </div>
 
@@ -3334,10 +3548,20 @@ export function App(): React.ReactElement {
               <button
                 type="button"
                 onClick={() => startSectionTour('mission_dock')}
-                className="inline-flex items-center gap-1 rounded-xl border border-slate-700/80 bg-slate-900/80 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200"
+                aria-expanded={isTourSectionFocused('mission_dock')}
+                className={explainButtonClass('mission_dock', 'rounded-xl px-3 py-1.5')}
               >
-                <HelpCircle className="h-3.5 w-3.5 text-cyan-300" aria-hidden="true" />
-                <span>Explain Timeline &amp; Sky</span>
+                <HelpCircle
+                  className={`h-3.5 w-3.5 ${
+                    isTourSectionFocused('mission_dock') ? 'text-amber-300' : 'text-cyan-300'
+                  }`}
+                  aria-hidden="true"
+                />
+                <span>
+                  {isTourSectionFocused('mission_dock')
+                    ? 'Hide Explain'
+                    : 'Explain Timeline & Sky'}
+                </span>
               </button>
               </div>
 
@@ -3528,6 +3752,14 @@ export function App(): React.ReactElement {
           </div>
         </div>
       </footer>
+
+      {/* NASA RAG Assistant Chatbot */}
+      <NasaRagChatbot
+        liveContext={ragLiveContext}
+        open={ragChatOpen}
+        onOpenChange={setRagChatOpen}
+        onTriggerAction={handleTriggerRagAction}
+      />
 
       {/* Accessible Modals */}
       <GettingStartedModal

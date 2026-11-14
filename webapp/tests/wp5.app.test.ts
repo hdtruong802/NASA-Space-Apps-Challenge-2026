@@ -9,6 +9,7 @@ import { CandidateFinderPanel } from '../src/components/CandidateFinderPanel';
 import { GettingStartedModal, ONBOARDING_SECTIONS } from '../src/components/GettingStartedModal';
 import { GlossaryTerm } from '../src/components/GlossaryTerm';
 import { LearnModal } from '../src/components/LearnModal';
+import { NasaRagChatbot } from '../src/components/NasaRagChatbot';
 import { ScenarioComparePanel } from '../src/components/ScenarioComparePanel';
 import { SiteComparisonTable } from '../src/components/SiteComparisonTable';
 import {
@@ -26,6 +27,7 @@ import {
   RISE_SET_DEFINITION_TEXT,
   sphericalHorizonDipDeg,
 } from '../src/lib/lunarMath';
+import { askNasaRagAssistant, type RagLiveContext } from '../src/lib/nasaRag';
 import { normalizeSites, SCORE_FORMULA_TEXT } from '../src/lib/scoring';
 import { candidateToSiteData, rankCandidates } from '../src/lib/candidates';
 import type {
@@ -49,10 +51,12 @@ const WP5_SOURCE_FILES = [
   'src/components/GlossaryTerm.tsx',
   'src/components/LearnModal.tsx',
   'src/components/AboutModal.tsx',
+  'src/components/NasaRagChatbot.tsx',
   'src/components/ScenarioComparePanel.tsx',
   'src/components/CandidateFinderPanel.tsx',
   'src/components/SiteComparisonTable.tsx',
   'src/components/appHelpers.ts',
+  'src/lib/nasaRag.ts',
 ].map((rel) => path.resolve(__dirname, '..', rel));
 
 function loadFixtureEphemeris(): EphemerisData {
@@ -918,6 +922,113 @@ describe('WP5 App Shell, Scenarios, Candidates & Copy Hygiene', () => {
       );
       expect(mixedTableHtml).toContain('Computed');
       expect(mixedTableHtml).toContain(`#${rankResult.picked[0].rank} (`);
+    }
+  });
+
+  it('returns deterministic VeriFour fallback notice + NASA citations when no API key is configured and renders NasaRagChatbot SSR', async () => {
+    const eph = loadFixtureEphemeris();
+    const sites = makeSyntheticSites();
+    const ridge = sites[0];
+    const malapert = sites[1];
+    const { instant, summary } = computeInstantAndWindow(
+      eph,
+      ridge,
+      ridge.horizons_by_mast['2'],
+      0,
+      336,
+    );
+
+    const liveContext: RagLiveContext = {
+      selectedSite: ridge,
+      compareSite: malapert,
+      ephemeris: eph,
+      sites,
+      utcIso: instant.utcIso,
+      mastHeightM: 2,
+      earthMaskDeg: 0,
+      windowHours: 336,
+      trackingPct: instant.power?.trackingPct ?? instant.sunDiskFrac * 100,
+      horizontalPct: instant.power?.horizontalPct ?? 0,
+      sunElevDeg: instant.sunElDeg,
+      earthElevDeg: instant.earthElDeg,
+      dteClear: instant.earthVisible,
+      windowSunPct: summary.sunPct,
+      windowEarthPct: summary.earthPct,
+      windowJointPct: summary.bothPct,
+      maxDarkHours: summary.maxDarkHours,
+      viabilityScore: ridge.metrics_2m.viability_score,
+      activeView: 'surface3d',
+      hasClientDem: false,
+    };
+
+    const viReply = await askNasaRagAssistant({
+      query: 'Công thức Viability Index là gì?',
+      liveContext,
+    });
+    expect(viReply.usedFallback).toBe(true);
+    expect(viReply.answer).toContain('liên hệ team VeriFour để có thêm token');
+    expect(viReply.answer).toContain('0.35');
+    expect(
+      viReply.citations.some(
+        (cit) => cit.includes('NASA') || cit.includes('LOLA') || cit.includes('Horizons'),
+      ),
+    ).toBe(true);
+    expect(viReply.actions.length).toBeGreaterThan(0);
+
+    const enReply = await askNasaRagAssistant({
+      query: 'Explain NASA LRO LOLA 240m provenance and Mazarico 2011 benchmark',
+      liveContext,
+    });
+    expect(enReply.usedFallback).toBe(true);
+    expect(enReply.answer).toContain('contact team VeriFour for more tokens');
+    expect(enReply.citations.some((cit) => cit.includes('Mazarico') || cit.includes('NASA'))).toBe(
+      true,
+    );
+
+    const closedHtml = renderToStaticMarkup(
+      React.createElement(NasaRagChatbot, {
+        liveContext,
+        open: false,
+        onOpenChange: () => {},
+        onTriggerAction: () => {},
+      }),
+    );
+    expect(closedHtml).toContain('NASA RAG AI');
+    expect(closedHtml).toContain('aria-expanded="false"');
+
+    const openHtml = renderToStaticMarkup(
+      React.createElement(NasaRagChatbot, {
+        liveContext,
+        open: true,
+        onOpenChange: () => {},
+        onTriggerAction: () => {},
+      }),
+    );
+    expect(openHtml).toContain('role="dialog"');
+    expect(openHtml).toContain('VeriFour NASA RAG Assistant');
+    expect(openHtml).toContain('Connecting Ridge');
+    expect(openHtml).toContain('Quick NASA Prompts (1-Click)');
+    expect(openHtml).toContain('JPL DE441');
+
+    // Regression checks for Explain Section sticky-header fix & RAG wiring in App.tsx
+    const appSrc = fs.readFileSync(path.resolve(__dirname, '../src/App.tsx'), 'utf-8');
+    expect(appSrc).toContain('data-tour-card={sectionId}');
+    expect(appSrc).toContain('tourPulse');
+    expect(appSrc).toContain('max-h-[68vh] overflow-y-auto');
+    expect(appSrc).toContain('Explain Header');
+    expect(appSrc).toContain('Hide Explain');
+    expect(appSrc).toContain('NASA AI Chat');
+    expect(appSrc).toContain('<NasaRagChatbot');
+    for (const actionId of [
+      'deploy_rover',
+      'jump_eclipse',
+      'open_tour',
+      'open_compare',
+      'open_directory',
+      'load_hd_dem',
+      'open_physics_tab',
+    ]) {
+      expect(appSrc).toContain(`case '${actionId}'`);
     }
   });
 });
