@@ -107,7 +107,7 @@ const WINDOW_DURATION_OPTIONS = [
   { hours: 336, label: '336h (14d)' },
   { hours: 720, label: '720h (30d)' },
 ];
-const VERTICAL_EXAGGERATION_OPTIONS = [3, 6, 10, 15] as const;
+const VERTICAL_EXAGGERATION_OPTIONS = [1, 3, 6, 10, 15] as const;
 
 function getAppBaseUrl(): string {
   const meta = import.meta as unknown as { env?: { BASE_URL?: string } };
@@ -1888,13 +1888,18 @@ export function App(): React.ReactElement {
                         type="button"
                         onClick={() => setVerticalExaggeration(ex)}
                         aria-pressed={verticalExaggeration === ex}
+                        title={
+                          ex === 1
+                            ? '1× Real: True 1:1 physical lunar terrain & horizon elevation scale'
+                            : `${ex}× vertical terrain relief exaggeration`
+                        }
                         className={`rounded-lg px-2 py-1 text-xs font-semibold transition ${
                           verticalExaggeration === ex
                             ? 'bg-emerald-500/25 text-emerald-200 ring-1 ring-emerald-400/50'
                             : 'text-slate-300 hover:bg-slate-800'
                         }`}
                       >
-                        {ex}×
+                        {ex === 1 ? '1× Real' : `${ex}×`}
                       </button>
                     ))}
                   </div>
