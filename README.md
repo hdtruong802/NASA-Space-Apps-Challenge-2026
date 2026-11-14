@@ -24,6 +24,19 @@ An interactive browser-based mission planning tool for evaluating solar illumina
   - [`submission/PITCH_DECK_7_SLIDES.pdf`](submission/PITCH_DECK_7_SLIDES.pdf) & [`submission/PITCH_DECK_7_SLIDES.html`](submission/PITCH_DECK_7_SLIDES.html) — Self-contained 7-slide 16:9 visual pitch deck (with live NASA LOLA / JPL Horizons captures).
   - [`submission/PITCH_AND_VIDEO_SCRIPT.md`](submission/PITCH_AND_VIDEO_SCRIPT.md) — 30-second video capture script, 5–7 minute live judging pitch guide, Viability MCDA justification, and submission checklist.
 
+## Raw NASA data used (`data/`)
+
+The `data/` folder holds the raw NASA inputs consumed by the offline pipeline (`scripts/`), which turns them into the shipped runtime assets in `webapp/public/data/`:
+
+| Path | NASA source | How it is used |
+| --- | --- | --- |
+| `data/lola/ldem_75s_240m.lbl` (+ `ldem_75s_240m.img`, 29 MB, downloaded by `scripts/fetch_lola_dem.py` and gitignored) | NASA PDS LRO LOLA Gridded Data Record `LDEM_75S_240M` | 240 m/px South Pole (75°S–90°S) elevation grid → `dem_fine_240m.i16`, `dem_coarse_1200m_max.i16`, slope maps and 360° horizon ray-marching |
+| `data/horizons/moon_subpoints_1h.csv` | NASA JPL Horizons (`DE441` / `MOON_ME`) | Hourly sub-solar and sub-Earth points and Earth–Moon distance (`36,216` steps, `2026-11-14`–`2030-12-31`) → `ephemeris.json` |
+| `data/horizons/topo_*_sun.csv`, `topo_*_earth.csv` (12 files) | NASA JPL Horizons topocentric observer tables | Az/El validation checkpoints at 6 sites (Apollo 11, Chandrayaan-3, Chang'e-4 far side, Connecting Ridge, IM-1 Odysseus, IM-2 Athena); max error `0.000198°` (Sun) / `0.006016°` (Earth) |
+| `data/artemis3_regions_2024.csv`, `data/artemis3_regions_2024.geojson` | NASA Artemis III 2024 candidate landing regions (via LROC QuickMap) | 9 region boundaries → `artemis3_regions.json` and the map/3D overlays |
+
+Re-fetch the raw data with `scripts/fetch_lola_dem.py` and `scripts/fetch_horizons.py` (see *How to run*). Source URLs are listed under *Data sources*.
+
 ## Shipped data assets (`webapp/public/data/`, schema v2.0.0)
 
 All shipped runtime files share `schema_version: "2.0.0"` and `data_version: "2026-11-14"`:
