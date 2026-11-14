@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  Activity,
   ArrowLeft,
   ArrowRight,
   BookOpen,
@@ -9,6 +10,8 @@ import {
   Eclipse,
   Gauge,
   GitCompare,
+  HelpCircle,
+  Layers,
   Layers3,
   MapPinned,
   Mountain,
@@ -31,6 +34,287 @@ export type OnboardingPresetId =
   | 'ridge_vs_psr'
   | 'candidate_scan';
 
+export type OnboardingSectionId =
+  | 'header'
+  | 'workspaces'
+  | 'hud_probe'
+  | 'viewport_rover'
+  | 'kpi_gauges'
+  | 'science_notes'
+  | 'mission_dock';
+
+export interface OnboardingSectionItem {
+  label: string;
+  tag?: string;
+  explanation: string;
+}
+
+export interface OnboardingSectionSpec {
+  id: OnboardingSectionId;
+  stepNumber: number;
+  shortLabel: string;
+  badge: string;
+  title: string;
+  subtitle: string;
+  overview: string;
+  items: OnboardingSectionItem[];
+}
+
+export const ONBOARDING_SECTIONS: OnboardingSectionSpec[] = [
+  {
+    id: 'header',
+    stepNumber: 1,
+    shortLabel: 'Header & Target',
+    badge: 'Section 1 · Mission Command Bar',
+    title: 'Target Selector, Validation & Export Header',
+    subtitle: 'Top command bar — choose a landing site and verify JPL ephemeris lock',
+    overview:
+      'Every workspace and telemetry ring stays synchronized to Scenario A selected here. Use this top bar to switch sites, teleport the 3D rover, inspect ephemeris accuracy, or share your exact session URL.',
+    items: [
+      {
+        label: 'Target Location (Scenario A)',
+        tag: '31 Sites',
+        explanation:
+          'Switches between 17 South Pole targets (Artemis III, PGDA ridges, Shackleton PSR) and 14 global historic landers (Apollo, CLPS, Chandrayaan-3, SLIM).',
+      },
+      {
+        label: 'Deploy Rover',
+        tag: '3D Action',
+        explanation:
+          'Places the 6-wheel lunar rover directly onto the active target within the ±150 km South Pole LOLA DEM and snaps the chase camera to it.',
+      },
+      {
+        label: 'JPL Horizons (~0.006°)',
+        tag: 'DE441 Check',
+        explanation:
+          'Displays the verified topocentric Sun and Earth Az/El residual error against NASA JPL Horizons DE441 checkpoints across 2026–2030.',
+      },
+      {
+        label: 'Share & Export Brief',
+        tag: 'Reproducible',
+        explanation:
+          'Copies a permalink encoding site, timestamp, comparison target, and mast height—or downloads a Markdown engineering site brief.',
+      },
+    ],
+  },
+  {
+    id: 'workspaces',
+    stepNumber: 2,
+    shortLabel: '5 Workspaces',
+    badge: 'Section 2 · Synchronized Views',
+    title: '5 Mission Workspaces Built on One Simulation State',
+    subtitle: 'Switch between 3D Rover, Split View, 2D Map, A/B Compare & Candidate Directory',
+    overview:
+      'All five workspace tabs read from the same target coordinate, UTC hour, mast elevation, and DTE mask—so changing a timestamp or mast height updates every visualization simultaneously.',
+    items: [
+      {
+        label: '3D Rover & Surface',
+        tag: 'Default View',
+        explanation:
+          'Interactive WebGL lunar South Pole terrain built from NASA LRO LOLA elevation data with moving Sun shadows, Earth disk sky beacon, and drivable rover.',
+      },
+      {
+        label: 'Command Split',
+        tag: 'Multi-Panel',
+        explanation:
+          'Places the 3D terrain canvas next to the ±150 km stereographic 2D polar map and 360° horizon sky panorama on one screen.',
+      },
+      {
+        label: '2D Map & Sky',
+        tag: 'Cartographic',
+        explanation:
+          'Dedicated 2D polar heightmap for clicking custom coordinates, paired with the polar sky dome and horizon mask chart.',
+      },
+      {
+        label: 'Compare A vs B & Directory',
+        tag: 'Analysis & Scan',
+        explanation:
+          'Evaluate two targets side by side across independent UTC timestamps/masts, or rank 62,500 polar cells and live 240 m neighborhoods by Viability Index.',
+      },
+    ],
+  },
+  {
+    id: 'hud_probe',
+    stepNumber: 3,
+    shortLabel: 'Scale & Probe',
+    badge: 'Section 3 · Simulation Controls',
+    title: 'Vertical Relief Scale, 240 m HD DEM & Coordinate Probe',
+    subtitle: 'Tune visual elevation relief, stream 240 m DEM blocks, and probe any Lat/Lon',
+    overview:
+      'Use this HUD strip to separate geometric relief exaggeration from true 1:1 horizon physics, upgrade terrain resolution to 240 m LOLA HD, probe arbitrary coordinates, and adjust the analysis window.',
+    items: [
+      {
+        label: 'Relief: 1× Real vs. 3×–15×',
+        tag: 'Visual Scale',
+        explanation:
+          '1× Real renders true physical lunar height-to-width scale; 3×–15× exaggerates craters visually for orientation while solar/Earth blockage math always uses 1× terrain.',
+      },
+      {
+        label: 'Load 240 m HD',
+        tag: 'LDEM_75S_240M',
+        explanation:
+          'Streams the quantized 240 m South Pole elevation bundle (~5.5 MB) to unlock client-side ray-marched horizon computation at any custom polar pin.',
+      },
+      {
+        label: 'Lat / Lon Coordinate Probe',
+        tag: 'Custom Pin',
+        explanation:
+          'Type any Moon latitude/longitude inside 75°S–90°S and click Probe to trace its 360° terrain horizon silhouette and compute visibility metrics.',
+      },
+      {
+        label: 'Overlay B & Window Selector',
+        tag: '24h – 36,216h',
+        explanation:
+          'Compare another site as Target B on charts, and switch KPI window averaging between 24h, 7d, 14d (336h), 30d, 1yr, or full 4.1yr (36,216h).',
+      },
+    ],
+  },
+  {
+    id: 'viewport_rover',
+    stepNumber: 4,
+    shortLabel: '3D & Rover',
+    badge: 'Section 4 · Interactive 3D & Surface',
+    title: '3D Lunar South Pole Simulator & Rover Telemetry Strip',
+    subtitle: 'Orbit terrain, switch diagnostic overlays, and drive the 6-wheel rover',
+    overview:
+      'Click and drag to orbit the camera, scroll to zoom, click any terrain point for autopilot navigation, or steer directly with WASD / Arrow keys while monitoring live rover tilt and Earth line-of-sight.',
+    items: [
+      {
+        label: 'Surface Layers (Regolith / Sun / Earth / Slope / Composite)',
+        tag: '3D Shader',
+        explanation:
+          'Re-colors the 240 m mesh in 3D: view natural sunlit regolith, continuous Sun illumination map, Earth DTE map, LOLA slope severity, or combined composite viability.',
+      },
+      {
+        label: 'Camera Modes (Chase / Mast POV / Orbit / Free Cam)',
+        tag: 'Perspective',
+        explanation:
+          'Chase follows the rover; Mast POV puts you at antenna height looking across the crater rim; Orbit pivots around Site A; Free Cam explores the region freely.',
+      },
+      {
+        label: 'Rover Autopilot & D-Pad / WASD Controls',
+        tag: '1× – 1000× Gear',
+        explanation:
+          'Steer manually or click Fly/Drive mode; bottom telemetry shows Rover Lat/Lon, Elevation, Heading, Pitch/Roll, driven km, and live array output.',
+      },
+      {
+        label: 'Live Link Indicator (Clear / Blocked)',
+        tag: 'Margin (°)',
+        explanation:
+          'Reports whether Earth clears the 360° horizon from the rover’s exact moving position and mast elevation, with clearance margin in degrees.',
+      },
+    ],
+  },
+  {
+    id: 'kpi_gauges',
+    stepNumber: 5,
+    shortLabel: '4 KPI Gauges',
+    badge: 'Section 5 · Telemetry KPIs',
+    title: 'Understanding Every KPI Ring, Percentage & Score',
+    subtitle: 'Distinguish instantaneous solar disk lighting, active-window DTE, 240 m slope, and MCDA rank',
+    overview:
+      'These four cards summarize physical quantities on different time scales: the first card shows instantaneous sunlight at the chosen UTC hour, while Earth DTE averages over the selected mission window.',
+    items: [
+      {
+        label: '1. Solar Array (Lit % vs. Horizontal Panel %)',
+        tag: 'Instant UTC',
+        explanation:
+          'Ring Lit % is the fraction of the 0.53° solar disk above terrain for a vertical sun-tracking array right now. Horizontal Panel % applies sin(El) Lambert scaling, explaining why low polar sun favors upright arrays.',
+      },
+      {
+        label: '2. Earth DTE (In View % & Mask 0°/2°/5°)',
+        tag: 'Active Window',
+        explanation:
+          'In View % measures Earth visibility across the active window (e.g., 336h = 14d). Mask 0°/2°/5° tests antenna terrain clearance margin during ±6.7° optical libration; Joint tracks simultaneous Sun + Earth ops.',
+      },
+      {
+        label: '3. 240 m Slope & Tilt',
+        tag: 'Terrain & Rover',
+        explanation:
+          'Displays the LRO LOLA 240 m baseline slope (n/a outside 75°S–90°S), live Rover Pitch/Roll, % of surrounding 30×30 km area ≤ 5°, and longest continuous darkness streak (Max Dark in days).',
+      },
+      {
+        label: '4. Viability Index (MCDA Score / 100)',
+        tag: 'Team Weighted',
+        explanation:
+          'Exploratory 4.1-year (36,216h) comparison index: 35% Mean Solar Disk + 25% Earth DTE + 15% Joint Sun∩Earth + 15% Dark Resilience + 10% Slope ≤ 5°. Not a flight-certification metric.',
+      },
+    ],
+  },
+  {
+    id: 'science_notes',
+    stepNumber: 6,
+    shortLabel: 'Science & Glossary',
+    badge: 'Section 6 · Provenance & Caveats',
+    title: 'Site Provenance, Uncertainty Bounds & Interactive Glossary',
+    subtitle: 'Inspect LOLA source offset, ±240 m drift sensitivity, and physics caveats',
+    overview:
+      'Expand Science & Methodology Notes anytime to inspect where the coordinates came from, how sensitive sunlight is to a ±240 m landing dispersion, and tap glossary pills for quick definitions.',
+    items: [
+      {
+        label: 'Site Profile & Coordinate Provenance',
+        tag: 'PGDA / NASA',
+        explanation:
+          'Links the exact published source coordinates and shows any sub-kilometer peak refinement offset used on the 240 m DEM grid.',
+      },
+      {
+        label: 'Terrain vs. Smooth Sphere Baseline',
+        tag: '2 m Mast Check',
+        explanation:
+          'Compares full topographic horizon obstruction against an idealized smooth spherical Moon to isolate true crater-rim shadowing effects.',
+      },
+      {
+        label: '±240 m Drift & 30×30 km Relief',
+        tag: 'Dispersion',
+        explanation:
+          'Shows the min–max Sun Disk % across neighboring 240 m pixels so mission planners see how sensitive power is to small landing-ellipse shifts.',
+      },
+      {
+        label: 'Interactive Glossary Pills',
+        tag: 'Definitions',
+        explanation:
+          'Click DTE Geometry, LOLA 240 m DEM, PSR, Az/El, Optical Libration, or Team Viability Index for concise inline reference popovers.',
+      },
+    ],
+  },
+  {
+    id: 'mission_dock',
+    stepNumber: 7,
+    shortLabel: 'Timeline & Sky',
+    badge: 'Section 7 · Bottom Mission Dock',
+    title: '14-Day Timeline, Mast Sensitivity, 360° Sky & Traverse Profile',
+    subtitle: 'Scrub 2026–2030, test 0.5–50 m mast heights, jump to eclipses, and inspect 360° ridges',
+    overview:
+      'The bottom mission dock turns static percentages into interactive time-series and sky-dome evidence—letting you scrub hourly windows across 4.1 years and watch Earth or Sun clear local ridges.',
+    items: [
+      {
+        label: '2026–2030 Scrubber & 14-Day Hourly Strips',
+        tag: '36,216 Hours',
+        explanation:
+          'Click or arrow-scrub any hour across Solar Disk output, Earth DTE visibility, and Joint Sun + Earth strips to spot multi-day dark gaps or continuous daylight windows.',
+      },
+      {
+        label: 'Mast Height Slider (0.5 m – 50 m) & Eclipses',
+        tag: 'Sensitivity',
+        explanation:
+          'Raise the lander/rover mast in real physics calculations to quantify extra sunlit and DTE hours, or jump straight to cataloged 2026–2030 solar eclipses.',
+      },
+      {
+        label: '360° Horizon Sky & Panorama Tab',
+        tag: 'Ghost Horizon',
+        explanation:
+          'Plots the 360° terrain ridge profile around your site with live Sun/Earth paths and compares dashed ghost horizons between 2 m and higher masts.',
+      },
+      {
+        label: 'Rover Traverse Elevation Profile Tab',
+        tag: 'Route Log',
+        explanation:
+          'Graphs terrain elevation, slope %, and Earth DTE continuity along your driven rover traverse distance.',
+      },
+    ],
+  },
+];
+
 interface GettingStartedModalProps {
   open: boolean;
   onClose: () => void;
@@ -38,6 +322,7 @@ interface GettingStartedModalProps {
   currentView?: GettingStartedView;
   onRunPreset?: (preset: OnboardingPresetId) => void;
   onStartInteractiveTour?: () => void;
+  onStartSectionTour?: (sectionId?: OnboardingSectionId) => void;
   onOpenLearn?: () => void;
   onOpenAbout?: () => void;
 }
@@ -248,7 +533,7 @@ const instrumentGuides: Array<{
 ];
 
 const steps = [
-  { id: 0, badge: '1 · Choose & Quick-Start', summary: 'Launch a preset or pick a site' },
+  { id: 0, badge: '1 · Choose & Quick-Start', summary: 'Presets & 7-Section Screen Map' },
   { id: 1, badge: '2 · 5 Workspaces', summary: 'Switch 3D, Split, 2D & Finder' },
   { id: 2, badge: '3 · Read KPIs & Instruments', summary: 'Understand every gauge & limit' },
 ] as const;
@@ -260,11 +545,13 @@ export const GettingStartedModal: React.FC<GettingStartedModalProps> = ({
   currentView = 'surface3d',
   onRunPreset,
   onStartInteractiveTour,
+  onStartSectionTour,
   onOpenLearn,
   onOpenAbout,
 }) => {
   const [activeStep, setActiveStep] = useState<number>(0);
   const [selectedInstrument, setSelectedInstrument] = useState<InstrumentKey>('solar');
+  const [selectedSectionId, setSelectedSectionId] = useState<OnboardingSectionId>('header');
 
   useEffect(() => {
     if (open) {
@@ -274,6 +561,18 @@ export const GettingStartedModal: React.FC<GettingStartedModalProps> = ({
 
   const activeGuide =
     instrumentGuides.find((item) => item.key === selectedInstrument) ?? instrumentGuides[0];
+  const activeSection =
+    ONBOARDING_SECTIONS.find((sec) => sec.id === selectedSectionId) ?? ONBOARDING_SECTIONS[0];
+
+  const handleLaunchTour = (sectionId: OnboardingSectionId = 'header') => {
+    if (onStartSectionTour) {
+      onStartSectionTour(sectionId);
+      return;
+    }
+    if (onStartInteractiveTour) {
+      onStartInteractiveTour();
+    }
+  };
 
   const handlePresetClick = (preset: OnboardingPresetId) => {
     if (onRunPreset) {
@@ -298,23 +597,35 @@ export const GettingStartedModal: React.FC<GettingStartedModalProps> = ({
       eyebrow={
         <>
           <Compass className="h-4 w-4" aria-hidden="true" />
-          <span>Interactive Mission Onboarding · Field Guide</span>
+          <span>Interactive Mission Onboarding · Section-by-Section Guide</span>
         </>
       }
       title="Plan a lunar landing site in a few steps"
       maxWidthClass="max-w-5xl"
     >
       {/* Hero Banner & Clickable 3-Step Navigator */}
-      <div className="relative overflow-hidden rounded-2xl border border-sky-400/20 bg-[radial-gradient(ellipse_at_85%_0%,rgba(56,189,248,0.16),transparent_45%),linear-gradient(135deg,rgba(15,23,42,0.95),rgba(3,7,18,0.95))] p-4 sm:p-6">
+      <div className="relative overflow-hidden rounded-2xl border border-sky-400/20 bg-[radial-gradient(ellipse_at_85%_0%,rgba(56,189,248,0.16),transparent_45%),linear-gradient(135deg,rgba(15,23,42,0.95),rgba(3,7,18,0.95))] p-4 sm:p-5">
         <div className="relative">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-200">
-            <Check className="h-3.5 w-3.5" aria-hidden="true" /> Browser-based mission planning ·
-            no account needed
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-200">
+              <Check className="h-3.5 w-3.5" aria-hidden="true" /> Browser-based mission planning ·
+              no account needed
+            </div>
+            {(onStartSectionTour || onStartInteractiveTour) && (
+              <button
+                type="button"
+                onClick={() => handleLaunchTour('header')}
+                className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/50 bg-cyan-500/20 px-3.5 py-1 text-xs font-semibold text-cyan-100 transition hover:bg-cyan-500/30"
+              >
+                <Play className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>Start Live 7-Section Screen Walkthrough</span>
+              </button>
+            )}
           </div>
-          <p className="max-w-3xl text-sm leading-relaxed text-slate-300">
-            Explore how sunlight, Earth line of sight and lunar terrain change across landing
-            locations. Click any step below, or launch a 1-click preset mission right onto the
-            canvas.
+          <p className="mt-2.5 max-w-3xl text-sm leading-relaxed text-slate-300">
+            Explore how sunlight, Earth line of sight, and lunar terrain change across the South
+            Pole. Inspect each of the 7 UI sections with explanations below, or highlight them
+            step-by-step directly on the live simulator screen.
           </p>
 
           <div
@@ -352,9 +663,9 @@ export const GettingStartedModal: React.FC<GettingStartedModalProps> = ({
         </div>
       </div>
 
-      {/* Step 1 Panel: 1-Click Quick-Start Presets */}
+      {/* Step 1 Panel: Quick-Start Presets + Compact Controls */}
       {activeStep === 0 && (
-        <section className="space-y-3" aria-label="Quick-start mission presets">
+        <section className="space-y-2.5" aria-label="Quick-start mission presets">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2 text-sm font-semibold text-slate-100">
               <Sparkles className="h-4 w-4 text-amber-300" aria-hidden="true" />
@@ -365,7 +676,7 @@ export const GettingStartedModal: React.FC<GettingStartedModalProps> = ({
             </span>
           </div>
 
-          <div className="grid gap-2.5 sm:grid-cols-2">
+          <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
             {presetScenarios.map((preset) => {
               const Icon = preset.icon;
               return (
@@ -373,37 +684,32 @@ export const GettingStartedModal: React.FC<GettingStartedModalProps> = ({
                   key={preset.id}
                   type="button"
                   onClick={() => handlePresetClick(preset.id)}
-                  className={`group flex flex-col justify-between rounded-xl border p-4 text-left transition ${preset.accent}`}
+                  className={`group flex flex-col justify-between rounded-xl border p-3.5 text-left transition ${preset.accent}`}
                 >
                   <div>
                     <div className="flex items-center justify-between gap-2">
                       <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide opacity-90">
-                        <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-                        <span>{preset.badge}</span>
+                        <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                        <span className="truncate">{preset.badge}</span>
                       </span>
                       <ArrowRight
-                        className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5"
+                        className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:translate-x-0.5"
                         aria-hidden="true"
                       />
                     </div>
-                    <div className="mt-2 text-sm font-semibold text-slate-100">{preset.title}</div>
+                    <div className="mt-2 text-xs font-bold leading-snug text-slate-100">
+                      {preset.title}
+                    </div>
                     <p className="mt-1 text-xs leading-relaxed text-slate-300">
                       {preset.description}
                     </p>
                   </div>
-                  <div className="mt-3 inline-flex items-center gap-1 text-xs font-semibold">
+                  <div className="mt-2.5 inline-flex items-center gap-1 text-xs font-semibold">
                     <span>{preset.cta}</span>
                   </div>
                 </button>
               );
             })}
-          </div>
-
-          <div className="rounded-xl border border-slate-800 bg-slate-950/65 px-4 py-3 text-xs text-slate-300">
-            <strong className="text-amber-200">Quick 3D &amp; Map controls:</strong> Drag to orbit ·
-            Scroll to zoom · <span className="font-mono text-slate-100">WASD</span> / Arrow keys or
-            click terrain to steer the 3D rover · Click anywhere on the 2D South Pole map to probe a
-            custom pin.
           </div>
         </section>
       )}
@@ -429,7 +735,7 @@ export const GettingStartedModal: React.FC<GettingStartedModalProps> = ({
                   key={id}
                   type="button"
                   onClick={() => onNavigate(id)}
-                  className={`group flex min-h-[132px] flex-col justify-between rounded-xl border p-3.5 text-left transition ${
+                  className={`group flex min-h-[126px] flex-col justify-between rounded-xl border p-3.5 text-left transition ${
                     isCurrent
                       ? 'border-amber-400/50 bg-slate-900/95 ring-1 ring-amber-400/30'
                       : 'border-slate-800 bg-slate-950/65 hover:border-slate-600 hover:bg-slate-900/90'
@@ -467,7 +773,7 @@ export const GettingStartedModal: React.FC<GettingStartedModalProps> = ({
             <button
               type="button"
               onClick={() => handlePresetClick('candidate_scan')}
-              className="group flex min-h-[132px] flex-col justify-between rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3.5 text-left transition hover:border-emerald-400/60 hover:bg-emerald-950/35"
+              className="group flex min-h-[126px] flex-col justify-between rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3.5 text-left transition hover:border-emerald-400/60 hover:bg-emerald-950/35"
             >
               <div>
                 <div className="flex items-center justify-between gap-2">
@@ -588,8 +894,102 @@ export const GettingStartedModal: React.FC<GettingStartedModalProps> = ({
         </section>
       )}
 
+      {/* Always-Accessible 7-Section Screen Walkthrough Explorer with Explanations */}
+      <section
+        aria-label="7-section interactive screen guide"
+        className="rounded-2xl border border-cyan-400/25 bg-slate-950/80 p-4 space-y-3"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <HelpCircle className="h-4 w-4 text-cyan-300" aria-hidden="true" />
+            <div>
+              <h3 className="text-sm font-bold text-slate-100">
+                Section-by-Section Screen Map (7 Sections with Explanations)
+              </h3>
+              <p className="text-xs text-slate-400">
+                Select any section of the interface below to see what every control means—or highlight it live on screen.
+              </p>
+            </div>
+          </div>
+          {(onStartSectionTour || onStartInteractiveTour) && (
+            <button
+              type="button"
+              onClick={() => handleLaunchTour(activeSection.id)}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-400/45 bg-amber-500/15 px-3 py-1.5 text-xs font-semibold text-amber-100 transition hover:bg-amber-500/25"
+            >
+              <Layers className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>Highlight &amp; Explain Section {activeSection.stepNumber} on Screen</span>
+              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </button>
+          )}
+        </div>
+
+        {/* 7 Clickable Section Pills */}
+        <div
+          role="tablist"
+          aria-label="Screen sections 1 to 7"
+          className="flex flex-wrap gap-1.5"
+        >
+          {ONBOARDING_SECTIONS.map((sec) => {
+            const isSelected = sec.id === activeSection.id;
+            return (
+              <button
+                key={sec.id}
+                type="button"
+                role="tab"
+                aria-selected={isSelected}
+                onClick={() => setSelectedSectionId(sec.id)}
+                className={`inline-flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-semibold transition ${
+                  isSelected
+                    ? 'border-amber-400/65 bg-amber-500/20 text-amber-100 ring-1 ring-amber-400/40'
+                    : 'border-slate-800 bg-slate-900/75 text-slate-300 hover:border-slate-600 hover:text-white'
+                }`}
+              >
+                <span className="rounded bg-slate-950/70 px-1.5 py-0.5 font-mono text-xs text-cyan-300">
+                  {sec.stepNumber}
+                </span>
+                <span>{sec.shortLabel}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Selected Section Explanation Breakdown */}
+        <div className="rounded-xl border border-slate-800/90 bg-slate-900/65 p-3.5 space-y-3">
+          <div className="flex flex-wrap items-start justify-between gap-2 border-b border-slate-800 pb-2.5">
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-cyan-300">
+                <Activity className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>{activeSection.badge}</span>
+              </div>
+              <h4 className="mt-0.5 text-sm font-bold text-slate-100">{activeSection.title}</h4>
+              <p className="mt-1 text-xs leading-relaxed text-slate-300">{activeSection.overview}</p>
+            </div>
+          </div>
+
+          <div className="grid gap-2 sm:grid-cols-2">
+            {activeSection.items.map((item) => (
+              <div
+                key={item.label}
+                className="rounded-xl border border-slate-800 bg-slate-950/75 p-2.5 space-y-1"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-semibold text-amber-200">{item.label}</span>
+                  {item.tag && (
+                    <span className="shrink-0 rounded-full border border-sky-400/25 bg-sky-500/10 px-2 py-0.5 font-mono text-xs text-sky-200">
+                      {item.tag}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs leading-relaxed text-slate-300">{item.explanation}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Interactive Footer: Stepper Controls + Guided Tour + Enter App */}
-      <div className="flex flex-col gap-3 rounded-xl border border-slate-800 bg-slate-950/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-xl border border-slate-800 bg-slate-950/60 p-3.5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -617,14 +1017,14 @@ export const GettingStartedModal: React.FC<GettingStartedModalProps> = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {onStartInteractiveTour && (
+          {(onStartSectionTour || onStartInteractiveTour) && (
             <button
               type="button"
-              onClick={onStartInteractiveTour}
+              onClick={() => handleLaunchTour('header')}
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-400/45 bg-cyan-500/15 px-4 py-2 text-xs font-semibold text-cyan-100 transition hover:bg-cyan-500/25"
             >
               <Play className="h-3.5 w-3.5" aria-hidden="true" />
-              <span>Start Interactive Tour (4 Steps)</span>
+              <span>Start Interactive Tour (7 Sections)</span>
             </button>
           )}
           <button

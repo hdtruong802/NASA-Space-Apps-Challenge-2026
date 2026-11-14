@@ -13,6 +13,7 @@ import {
   ExternalLink,
   GitCompare,
   Globe2,
+  HelpCircle,
   Info,
   Layers,
   Loader2,
@@ -32,8 +33,10 @@ import { AboutModal } from './components/AboutModal';
 import { CandidateFinderPanel } from './components/CandidateFinderPanel';
 import {
   GettingStartedModal,
+  ONBOARDING_SECTIONS,
   type GettingStartedView,
   type OnboardingPresetId,
+  type OnboardingSectionId,
 } from './components/GettingStartedModal';
 import { GlossaryTerm } from './components/GlossaryTerm';
 import { HorizonSkyView } from './components/HorizonSkyView';
@@ -516,17 +519,18 @@ export function App(): React.ReactElement {
   const [aboutOpen, setAboutOpen] = useState<boolean>(false);
   const [gettingStartedOpen, setGettingStartedOpen] = useState<boolean>(() => {
     try {
-      return window.localStorage.getItem('lunar-navigator-onboarding-v1') !== 'complete';
+      return window.localStorage.getItem('lunar-navigator-onboarding-v2') !== 'complete';
     } catch {
       return true;
     }
   });
   const [tourStep, setTourStep] = useState<number | null>(null);
+  const [focusedKpiIndex, setFocusedKpiIndex] = useState<number>(0);
 
   const closeGettingStarted = useCallback(() => {
     setGettingStartedOpen(false);
     try {
-      window.localStorage.setItem('lunar-navigator-onboarding-v1', 'complete');
+      window.localStorage.setItem('lunar-navigator-onboarding-v2', 'complete');
     } catch {
       // Keep the guide usable when browser storage is disabled.
     }
@@ -540,11 +544,39 @@ export function App(): React.ReactElement {
     [closeGettingStarted],
   );
 
+  const startSectionTour = useCallback(
+    (sectionId: OnboardingSectionId = 'header') => {
+      closeGettingStarted();
+      const idx = ONBOARDING_SECTIONS.findIndex((sec) => sec.id === sectionId);
+      setActiveView('surface3d');
+      if (sectionId === 'science_notes') {
+        setScienceNotesOpen(true);
+      }
+      setFocusedKpiIndex(0);
+      setTourStep(idx >= 0 ? idx : 0);
+    },
+    [closeGettingStarted],
+  );
+
   const startInteractiveTour = useCallback(() => {
-    closeGettingStarted();
-    setActiveView('surface3d');
-    setTourStep(0);
-  }, [closeGettingStarted]);
+    startSectionTour('header');
+  }, [startSectionTour]);
+
+  useEffect(() => {
+    if (tourStep === null) return;
+    const section = ONBOARDING_SECTIONS[tourStep];
+    if (!section) return;
+    if (section.id === 'science_notes') {
+      setScienceNotesOpen(true);
+    }
+    const timer = window.setTimeout(() => {
+      const target = document.querySelector(`[data-tour-section="${section.id}"]`);
+      if (target && typeof target.scrollIntoView === 'function') {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 80);
+    return () => window.clearTimeout(timer);
+  }, [tourStep]);
 
   // WP7 candidates list in memory
   const [candidates, setCandidates] = useState<SiteCandidate[]>([]);
@@ -1620,6 +1652,324 @@ export function App(): React.ReactElement {
   const isSpatialWorkspace =
     activeView === 'surface3d' || activeView === 'split' || activeView === 'map2d';
 
+  const activeTourSection =
+    tourStep !== null ? (ONBOARDING_SECTIONS[tourStep] ?? null) : null;
+  const isTourSectionFocused = (sectionId: OnboardingSectionId): boolean =>
+    activeTourSection?.id === sectionId;
+
+  const advanceTourStep = (delta: number) => {
+    setTourStep((prev) => {
+      if (prev === null) return null;
+      const next = prev + delta;
+      if (next >= ONBOARDING_SECTIONS.length) return null;
+      const clamped = Math.max(0, next);
+      const nextSec = ONBOARDING_SECTIONS[clamped];
+      setActiveView('surface3d');
+      if (nextSec?.id === 'science_notes') setScienceNotesOpen(true);
+      if (nextSec?.id === 'mission_dock') setMissionDockTab('timeline');
+      return clamped;
+    });
+  };
+
+  const renderSectionGuideCard = (sectionId: OnboardingSectionId) => {
+    if (!activeTourSection || activeTourSection.id !== sectionId) return null;
+
+    const liveKpiSummaries: Array<string> = [
+      `${trackingPct.toFixed(0)}% Lit · ${horizontalPct.toFixed(1)}% Horiz`,
+      `${summary.earthPct.toFixed(0)}% DTE (${summary.windowHoursAvailable}h · Mask ${earthMaskDeg}°)`,
+      `${hasTerrain ? `${selectedSite.local_slope_deg!.toFixed(2)}°` : 'n/a'} slope · ${(summary.maxDarkHours / 24).toFixed(1)}d Max Dark`,
+      `${viabilityScore !== null ? `${viabilityScore.toFixed(1)} / 100` : 'n/a'} (${selectedSite.short_name})`,
+    ];
+
+    return (
+      <aside
+        aria-label={`Section ${activeTourSection.stepNumber} explanation guide`}
+        className="nasa-panel rounded-2xl border-amber-400/50 bg-[linear-gradient(135deg,rgba(8,47,73,0.72),rgba(15,23,42,0.92),rgba(69,26,3,0.45))] p-4 text-xs text-slate-100 shadow-[0_18px_45px_-20px_rgba(251,191,36,0.45)] space-y-3"
+      >
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-700/80 pb-3">
+          <div className="min-w-[260px] flex-1 space-y-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/45 bg-amber-500/20 px-2.5 py-0.5 font-semibold text-amber-200">
+                <Compass className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>
+                  Section {activeTourSection.stepNumber} of {ONBOARDING_SECTIONS.length} ·{' '}
+                  {activeTourSection.shortLabel}
+                </span>
+              </span>
+              <span className="font-mono text-slate-300">
+                {selectedSite.short_name} · {instant.utcIso}
+              </span>
+            </div>
+            <h3 className="text-sm font-bold text-slate-50">{activeTourSection.title}</h3>
+            <p className="leading-relaxed text-slate-300">{activeTourSection.overview}</p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-1.5">
+            {sectionId === 'header' && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => handleDeployRoverToSite(selectedSite)}
+                  className="rounded-lg border border-cyan-400/45 bg-cyan-500/15 px-2.5 py-1.5 font-semibold text-cyan-100 transition hover:bg-cyan-500/25"
+                >
+                  Try Deploy Rover
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAboutOpen(true)}
+                  className="rounded-lg border border-slate-600 bg-slate-900 px-2.5 py-1.5 font-semibold text-slate-200 transition hover:border-sky-400/50"
+                >
+                  View Validation Details
+                </button>
+              </>
+            )}
+            {sectionId === 'workspaces' && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setActiveView('split')}
+                  className="rounded-lg border border-cyan-400/45 bg-cyan-500/15 px-2.5 py-1.5 font-semibold text-cyan-100 transition hover:bg-cyan-500/25"
+                >
+                  Open Command Split
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveView('compare')}
+                  className="rounded-lg border border-sky-400/45 bg-sky-500/15 px-2.5 py-1.5 font-semibold text-sky-100 transition hover:bg-sky-500/25"
+                >
+                  Open Compare A vs B
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveView('directory');
+                    void ensureCandidatesData();
+                  }}
+                  className="rounded-lg border border-violet-400/45 bg-violet-500/15 px-2.5 py-1.5 font-semibold text-violet-100 transition hover:bg-violet-500/25"
+                >
+                  Open Candidate Directory
+                </button>
+              </>
+            )}
+            {sectionId === 'hud_probe' && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setVerticalExaggeration((v) => (v === 1 ? 6 : 1))}
+                  className="rounded-lg border border-emerald-400/45 bg-emerald-500/15 px-2.5 py-1.5 font-semibold text-emerald-100 transition hover:bg-emerald-500/25"
+                >
+                  {verticalExaggeration === 1 ? 'Switch to 6× Relief' : 'Try 1× Real Scale'}
+                </button>
+                {!clientDem && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void ensureClientDem();
+                    }}
+                    className="rounded-lg border border-sky-400/45 bg-sky-500/15 px-2.5 py-1.5 font-semibold text-sky-100 transition hover:bg-sky-500/25"
+                  >
+                    Load 240 m HD DEM
+                  </button>
+                )}
+              </>
+            )}
+            {sectionId === 'viewport_rover' && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => handleDeployRoverToSite(selectedSite)}
+                  className="rounded-lg border border-emerald-400/45 bg-emerald-500/15 px-2.5 py-1.5 font-semibold text-emerald-100 transition hover:bg-emerald-500/25"
+                >
+                  Deploy Rover Here
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSurfaceLayer((prev) => (prev === 'composite' ? 'regolith' : 'composite'))
+                  }
+                  className="rounded-lg border border-amber-400/45 bg-amber-500/15 px-2.5 py-1.5 font-semibold text-amber-100 transition hover:bg-amber-500/25"
+                >
+                  {surfaceLayer === 'composite' ? 'Regolith Layer' : 'Composite Layer'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCameraMode((m) => (m === 'mast' ? 'chase' : 'mast'))}
+                  className="rounded-lg border border-cyan-400/45 bg-cyan-500/15 px-2.5 py-1.5 font-semibold text-cyan-100 transition hover:bg-cyan-500/25"
+                >
+                  {cameraMode === 'mast' ? 'Switch to Chase Cam' : 'Try Mast POV'}
+                </button>
+              </>
+            )}
+            {sectionId === 'kpi_gauges' && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setMastHeightM((m) => (m === 10 ? 2 : 10))}
+                  className="rounded-lg border border-sky-400/45 bg-sky-500/15 px-2.5 py-1.5 font-semibold text-sky-100 transition hover:bg-sky-500/25"
+                >
+                  {mastHeightM === 10 ? 'Reset 2 m Mast' : 'Test 10 m Mast'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEarthMaskDeg((m) => (m === 0 ? 2 : m === 2 ? 5 : 0))}
+                  className="rounded-lg border border-cyan-400/45 bg-cyan-500/15 px-2.5 py-1.5 font-semibold text-cyan-100 transition hover:bg-cyan-500/25"
+                >
+                  Cycle Earth Mask ({earthMaskDeg}°)
+                </button>
+              </>
+            )}
+            {sectionId === 'science_notes' && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setLearnOpen(true)}
+                  className="rounded-lg border border-sky-400/45 bg-sky-500/15 px-2.5 py-1.5 font-semibold text-sky-100 transition hover:bg-sky-500/25"
+                >
+                  Open Physics &amp; Guide
+                </button>
+              </>
+            )}
+            {sectionId === 'mission_dock' && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setMissionDockTab('sky')}
+                  className="rounded-lg border border-sky-400/45 bg-sky-500/15 px-2.5 py-1.5 font-semibold text-sky-100 transition hover:bg-sky-500/25"
+                >
+                  Open 360° Horizon Sky
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMissionDockTab('traverse')}
+                  className="rounded-lg border border-cyan-400/45 bg-cyan-500/15 px-2.5 py-1.5 font-semibold text-cyan-100 transition hover:bg-cyan-500/25"
+                >
+                  Open Traverse Profile
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const totalEvt =
+                      ephemeris.eclipses.find((e) => e.type.toLowerCase().includes('total')) ??
+                      ephemeris.eclipses[0];
+                    const targetIdx = totalEvt?.idx ?? 18687;
+                    setTimeIdx(Math.min(Math.max(0, targetIdx), Math.max(0, ephemeris.n - 1)));
+                    setMissionDockTab('timeline');
+                  }}
+                  className="rounded-lg border border-rose-400/45 bg-rose-500/15 px-2.5 py-1.5 font-semibold text-rose-100 transition hover:bg-rose-500/25"
+                >
+                  Jump to Eclipse
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Item-by-Item Sub-Component Explanations */}
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {activeTourSection.items.map((item, idx) => {
+            const isKpiSection = sectionId === 'kpi_gauges';
+            const isHighlightedKpi = isKpiSection && focusedKpiIndex === idx;
+            const body = (
+              <>
+                <div className="flex w-full items-center justify-between gap-2">
+                  <span className="font-semibold text-amber-200">{item.label}</span>
+                  {item.tag && (
+                    <span className="shrink-0 rounded-full border border-sky-400/25 bg-sky-500/10 px-2 py-0.5 font-mono text-sky-200">
+                      {item.tag}
+                    </span>
+                  )}
+                </div>
+                {isKpiSection && liveKpiSummaries[idx] && (
+                  <div className="font-mono font-semibold text-cyan-200">
+                    Current: {liveKpiSummaries[idx]}
+                  </div>
+                )}
+                <p className="leading-relaxed text-slate-300">{item.explanation}</p>
+              </>
+            );
+            return isKpiSection ? (
+              <button
+                key={item.label}
+                type="button"
+                aria-pressed={isHighlightedKpi}
+                onClick={() => setFocusedKpiIndex(idx)}
+                className={`flex flex-col items-start rounded-xl border p-2.5 text-left space-y-1 transition ${
+                  isHighlightedKpi
+                    ? 'border-amber-400/75 bg-amber-500/15 ring-1 ring-amber-400/50'
+                    : 'border-slate-700/80 bg-slate-950/75 hover:border-cyan-400/50'
+                }`}
+              >
+                {body}
+              </button>
+            ) : (
+              <div
+                key={item.label}
+                className="rounded-xl border border-slate-800 bg-slate-950/75 p-2.5 space-y-1"
+              >
+                {body}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Section Card Footer: Prev / Section Jump / Next */}
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-800/80 pt-2.5">
+          <div className="flex flex-wrap items-center gap-1">
+            {ONBOARDING_SECTIONS.map((sec, idx) => (
+              <button
+                key={sec.id}
+                type="button"
+                onClick={() => setTourStep(idx)}
+                className={`rounded-lg px-2 py-1 font-mono text-xs transition ${
+                  tourStep === idx
+                    ? 'bg-amber-500/25 text-amber-100 ring-1 ring-amber-400/60 font-semibold'
+                    : 'bg-slate-900/80 text-slate-400 hover:bg-slate-800 hover:text-slate-100'
+                }`}
+              >
+                {sec.stepNumber}. {sec.shortLabel}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setGettingStartedOpen(true)}
+              className="rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 font-medium text-slate-200 transition hover:border-slate-500"
+            >
+              All Sections Modal
+            </button>
+            <button
+              type="button"
+              disabled={tourStep === 0}
+              onClick={() => advanceTourStep(-1)}
+              className="rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 font-medium text-slate-200 transition hover:border-slate-500 disabled:opacity-40"
+            >
+              Prev Section
+            </button>
+            <button
+              type="button"
+              onClick={() => advanceTourStep(1)}
+              className="rounded-lg border border-amber-400/50 bg-amber-500/20 px-3 py-1.5 font-semibold text-amber-100 transition hover:bg-amber-500/30"
+            >
+              {tourStep !== null && tourStep >= ONBOARDING_SECTIONS.length - 1
+                ? 'Finish Guide'
+                : 'Next Section'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setTourStep(null)}
+              aria-label="End guided tour"
+              className="rounded-lg border border-slate-700 bg-slate-900 p-1.5 text-slate-300 transition hover:bg-slate-800 hover:text-white"
+            >
+              <X className="h-3.5 w-3.5" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      </aside>
+    );
+  };
+
   return (
     <div className="cosmic-bg min-h-screen text-slate-100">
       {/* Subtle Pure-CSS Deep Space Starfield Backdrop */}
@@ -1629,7 +1979,14 @@ export function App(): React.ReactElement {
       {/* Sleek Sticky NASA Eyes Mission Control Top Bar */}
       <header className="lg:sticky lg:top-0 z-50 border-b border-sky-400/20 bg-[#040815]/90 backdrop-blur-xl shadow-[0_8px_32px_rgba(2,6,23,0.65)]">
         <div className="mx-auto max-w-[1600px] px-3 py-2 sm:px-6">
-          <div className="flex flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
+          <div
+            data-tour-section="header"
+            className={`lg:scroll-mt-8 flex flex-col gap-2 xl:flex-row xl:items-center xl:justify-between transition ${
+              isTourSectionFocused('header')
+                ? 'rounded-2xl p-2 ring-2 ring-amber-400/90 shadow-[0_0_0_4px_rgba(251,191,36,0.16),0_0_35px_rgba(56,189,248,0.28)]'
+                : ''
+            }`}
+          >
             {/* Mission Emblem + Title + Quick Target Selector */}
             <div className="flex flex-wrap items-center gap-3 min-w-0">
               <div className="flex items-center gap-3 min-w-0">
@@ -1775,256 +2132,180 @@ export function App(): React.ReactElement {
           </div>
 
           {/* 5 Workspace View Tabs */}
-          <nav
-            role="tablist"
-            aria-label="Mission workspace views"
-            className="mt-2.5 flex flex-wrap items-center gap-1.5 border-t border-slate-800/70 pt-2"
+          <div
+            data-tour-section="workspaces"
+            className={`lg:scroll-mt-24 mt-2.5 flex flex-wrap items-center justify-between gap-2 border-t border-slate-800/70 pt-2 transition ${
+              isTourSectionFocused('workspaces')
+                ? 'rounded-2xl px-2 pb-1.5 ring-2 ring-amber-400/90 shadow-[0_0_0_4px_rgba(251,191,36,0.16),0_0_35px_rgba(56,189,248,0.28)]'
+                : ''
+            }`}
           >
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeView === 'surface3d'}
-              onClick={() => setActiveView('surface3d')}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
-                activeView === 'surface3d'
-                  ? 'bg-amber-500/20 text-amber-100 ring-1 ring-amber-400/60 shadow-[0_0_20px_-6px_rgba(251,191,36,0.5)]'
-                  : 'bg-slate-900/65 text-slate-300 hover:bg-slate-800/80 hover:text-white'
-              }`}
+            <nav
+              role="tablist"
+              aria-label="Mission workspace views"
+              className="flex flex-wrap items-center gap-1.5"
             >
-              <Orbit className="h-4 w-4" aria-hidden="true" />
-              <span>3D Rover &amp; Surface</span>
-            </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeView === 'surface3d'}
+                onClick={() => setActiveView('surface3d')}
+                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
+                  activeView === 'surface3d'
+                    ? 'bg-amber-500/20 text-amber-100 ring-1 ring-amber-400/60 shadow-[0_0_20px_-6px_rgba(251,191,36,0.5)]'
+                    : 'bg-slate-900/65 text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                }`}
+              >
+                <Orbit className="h-4 w-4" aria-hidden="true" />
+                <span>3D Rover &amp; Surface</span>
+              </button>
+
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeView === 'split'}
+                onClick={() => setActiveView('split')}
+                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
+                  activeView === 'split'
+                    ? 'bg-cyan-500/20 text-cyan-100 ring-1 ring-cyan-400/60 shadow-[0_0_20px_-6px_rgba(56,189,248,0.5)]'
+                    : 'bg-slate-900/65 text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                }`}
+              >
+                <Columns2 className="h-4 w-4" aria-hidden="true" />
+                <span>Command Split</span>
+              </button>
+
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeView === 'map2d'}
+                onClick={() => setActiveView('map2d')}
+                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
+                  activeView === 'map2d'
+                    ? 'bg-emerald-500/20 text-emerald-100 ring-1 ring-emerald-400/60'
+                    : 'bg-slate-900/65 text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                }`}
+              >
+                <MapIcon className="h-4 w-4" aria-hidden="true" />
+                <span>2D Map &amp; Sky</span>
+              </button>
+
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeView === 'compare'}
+                onClick={() => setActiveView('compare')}
+                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
+                  activeView === 'compare'
+                    ? 'bg-sky-500/20 text-sky-100 ring-1 ring-sky-400/60'
+                    : 'bg-slate-900/65 text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                }`}
+              >
+                <GitCompare className="h-4 w-4" aria-hidden="true" />
+                <span>Compare A vs B</span>
+              </button>
+
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeView === 'directory'}
+                onClick={() => setActiveView('directory')}
+                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
+                  activeView === 'directory'
+                    ? 'bg-violet-500/20 text-violet-100 ring-1 ring-violet-400/60'
+                    : 'bg-slate-900/65 text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                }`}
+              >
+                <Table2 className="h-4 w-4" aria-hidden="true" />
+                <span>Candidate Directory</span>
+                <span className="rounded-full bg-slate-800 px-2 py-0.5 font-mono text-xs text-slate-200">
+                  {sites.length + candidates.length}
+                </span>
+              </button>
+            </nav>
 
             <button
               type="button"
-              role="tab"
-              aria-selected={activeView === 'split'}
-              onClick={() => setActiveView('split')}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
-                activeView === 'split'
-                  ? 'bg-cyan-500/20 text-cyan-100 ring-1 ring-cyan-400/60 shadow-[0_0_20px_-6px_rgba(56,189,248,0.5)]'
-                  : 'bg-slate-900/65 text-slate-300 hover:bg-slate-800/80 hover:text-white'
-              }`}
+              onClick={() => startSectionTour('workspaces')}
+              className="hidden items-center gap-1 rounded-lg border border-slate-700/70 bg-slate-900/75 px-2.5 py-1 text-xs font-medium text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200 md:inline-flex"
             >
-              <Columns2 className="h-4 w-4" aria-hidden="true" />
-              <span>Command Split</span>
+              <HelpCircle className="h-3.5 w-3.5 text-cyan-300" aria-hidden="true" />
+              <span>Explain Section</span>
             </button>
-
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeView === 'map2d'}
-              onClick={() => setActiveView('map2d')}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
-                activeView === 'map2d'
-                  ? 'bg-emerald-500/20 text-emerald-100 ring-1 ring-emerald-400/60'
-                  : 'bg-slate-900/65 text-slate-300 hover:bg-slate-800/80 hover:text-white'
-              }`}
-            >
-              <MapIcon className="h-4 w-4" aria-hidden="true" />
-              <span>2D Map &amp; Sky</span>
-            </button>
-
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeView === 'compare'}
-              onClick={() => setActiveView('compare')}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
-                activeView === 'compare'
-                  ? 'bg-sky-500/20 text-sky-100 ring-1 ring-sky-400/60'
-                  : 'bg-slate-900/65 text-slate-300 hover:bg-slate-800/80 hover:text-white'
-              }`}
-            >
-              <GitCompare className="h-4 w-4" aria-hidden="true" />
-              <span>Compare A vs B</span>
-            </button>
-
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeView === 'directory'}
-              onClick={() => setActiveView('directory')}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
-                activeView === 'directory'
-                  ? 'bg-violet-500/20 text-violet-100 ring-1 ring-violet-400/60'
-                  : 'bg-slate-900/65 text-slate-300 hover:bg-slate-800/80 hover:text-white'
-              }`}
-            >
-              <Table2 className="h-4 w-4" aria-hidden="true" />
-              <span>Candidate Directory</span>
-              <span className="rounded-full bg-slate-800 px-2 py-0.5 font-mono text-xs text-slate-200">
-                {sites.length + candidates.length}
-              </span>
-            </button>
-          </nav>
+          </div>
         </div>
       </header>
 
       {/* Main Content Container */}
       <main className="relative z-10 mx-auto max-w-[1600px] space-y-4 px-3 py-4 sm:px-6">
-        {/* Non-Blocking Interactive 4-Step Guided Tour Bar */}
-        {tourStep !== null && (
-          <section
-            aria-label="Interactive guided tour"
-            className="nasa-panel flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-400/45 bg-gradient-to-r from-cyan-950/60 via-slate-900/90 to-amber-950/40 px-4 py-3 text-xs text-slate-100 shadow-lg"
-          >
-            <div className="min-w-[240px] flex-1 space-y-1">
+        {/* 7-Section Interactive Walkthrough Navigator + Top Anchored Explanation Card */}
+        {tourStep !== null && activeTourSection && (
+          <div className="space-y-3">
+            <section
+              aria-label="Interactive guided tour"
+              className="nasa-panel flex flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-cyan-400/45 bg-gradient-to-r from-cyan-950/60 via-slate-900/90 to-amber-950/40 px-4 py-2.5 text-xs text-slate-100 shadow-lg"
+            >
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1 rounded-full border border-cyan-400/40 bg-cyan-500/15 px-2.5 py-0.5 font-semibold text-cyan-200">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/40 bg-cyan-500/15 px-2.5 py-0.5 font-semibold text-cyan-200">
                   <Compass className="h-3.5 w-3.5" aria-hidden="true" />
-                  <span>Guided Tour · Step {tourStep + 1} of 4</span>
+                  <span>
+                    Section Walkthrough · {activeTourSection.stepNumber} /{' '}
+                    {ONBOARDING_SECTIONS.length}
+                  </span>
                 </span>
-                <span className="font-semibold text-amber-200">
-                  {tourStep === 0 && '3D Terrain & Rover Drive'}
-                  {tourStep === 1 && 'Telemetry KPIs & Mast Height'}
-                  {tourStep === 2 && '2026–2030 Timeline & 360° Sky'}
-                  {tourStep === 3 && 'Compare & Candidate Discovery'}
-                </span>
+                <div className="flex flex-wrap items-center gap-1">
+                  {ONBOARDING_SECTIONS.map((sec, idx) => (
+                    <button
+                      key={sec.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveView('surface3d');
+                        if (sec.id === 'science_notes') setScienceNotesOpen(true);
+                        if (sec.id === 'mission_dock') setMissionDockTab('timeline');
+                        setTourStep(idx);
+                      }}
+                      className={`rounded-lg px-2 py-1 font-mono text-xs transition ${
+                        tourStep === idx
+                          ? 'bg-amber-500/25 text-amber-100 ring-1 ring-amber-400/60 font-semibold'
+                          : 'bg-slate-900/75 text-slate-300 hover:bg-slate-800 hover:text-white'
+                      }`}
+                    >
+                      {sec.stepNumber}·{sec.shortLabel}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <p className="leading-relaxed text-slate-300">
-                {tourStep === 0 &&
-                  'Drag to orbit the 240 m South Pole mesh, click terrain for rover autopilot, or switch surface overlays and physical relief scale.'}
-                {tourStep === 1 &&
-                  'Each KPI ring separates instantaneous Solar Lit %, active-window Earth DTE %, 240 m slope, and 4.1-year Viability Index.'}
-                {tourStep === 2 &&
-                  'Use the bottom dock to scrub 36,216 JPL Horizons hours, jump to lunar eclipses, or inspect 360° horizon clearance.'}
-                {tourStep === 3 &&
-                  'Compare two targets side by side or scan polar cells under slope constraints before exporting a mission brief.'}
-              </p>
-            </div>
 
-            <div className="flex flex-wrap items-center gap-1.5">
-              {tourStep === 0 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => handleDeployRoverToSite(selectedSite)}
-                    className="rounded-lg border border-emerald-400/45 bg-emerald-500/15 px-2.5 py-1.5 font-semibold text-emerald-100 transition hover:bg-emerald-500/25"
-                  >
-                    Deploy Rover Here
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setVerticalExaggeration((v) => (v === 1 ? 6 : 1))}
-                    className="rounded-lg border border-sky-400/45 bg-sky-500/15 px-2.5 py-1.5 font-semibold text-sky-100 transition hover:bg-sky-500/25"
-                  >
-                    {verticalExaggeration === 1 ? 'Switch to 6× Relief' : 'Try 1× Real Scale'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSurfaceLayer((prev) => (prev === 'composite' ? 'regolith' : 'composite'))
-                    }
-                    className="rounded-lg border border-amber-400/45 bg-amber-500/15 px-2.5 py-1.5 font-semibold text-amber-100 transition hover:bg-amber-500/25"
-                  >
-                    {surfaceLayer === 'composite' ? 'Regolith Layer' : 'Composite Layer'}
-                  </button>
-                </>
-              )}
-              {tourStep === 1 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setMastHeightM((m) => (m === 10 ? 2 : 10))}
-                    className="rounded-lg border border-sky-400/45 bg-sky-500/15 px-2.5 py-1.5 font-semibold text-sky-100 transition hover:bg-sky-500/25"
-                  >
-                    {mastHeightM === 10 ? 'Reset 2 m Mast' : 'Test 10 m Mast'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setScienceNotesOpen((open) => !open)}
-                    className="rounded-lg border border-amber-400/45 bg-amber-500/15 px-2.5 py-1.5 font-semibold text-amber-100 transition hover:bg-amber-500/25"
-                  >
-                    {scienceNotesOpen ? 'Hide Formula Notes' : 'Show Formula Notes'}
-                  </button>
-                </>
-              )}
-              {tourStep === 2 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setMissionDockTab('sky')}
-                    className="rounded-lg border border-cyan-400/45 bg-cyan-500/15 px-2.5 py-1.5 font-semibold text-cyan-100 transition hover:bg-cyan-500/25"
-                  >
-                    Open 360° Horizon Sky
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const totalEvt =
-                        ephemeris.eclipses.find((e) => e.type.toLowerCase().includes('total')) ??
-                        ephemeris.eclipses[0];
-                      const targetIdx = totalEvt?.idx ?? 18687;
-                      setTimeIdx(Math.min(Math.max(0, targetIdx), Math.max(0, ephemeris.n - 1)));
-                      setMissionDockTab('timeline');
-                    }}
-                    className="rounded-lg border border-rose-400/45 bg-rose-500/15 px-2.5 py-1.5 font-semibold text-rose-100 transition hover:bg-rose-500/25"
-                  >
-                    Jump to Eclipse
-                  </button>
-                </>
-              )}
-              {tourStep === 3 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setActiveView('compare')}
-                    className="rounded-lg border border-sky-400/45 bg-sky-500/15 px-2.5 py-1.5 font-semibold text-sky-100 transition hover:bg-sky-500/25"
-                  >
-                    Open Compare A vs B
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveView('directory');
-                      void ensureCandidatesData();
-                    }}
-                    className="rounded-lg border border-violet-400/45 bg-violet-500/15 px-2.5 py-1.5 font-semibold text-violet-100 transition hover:bg-violet-500/25"
-                  >
-                    Open Candidate Directory
-                  </button>
-                </>
-              )}
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  disabled={tourStep === 0}
+                  onClick={() => advanceTourStep(-1)}
+                  className="rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1 font-medium text-slate-200 transition hover:border-slate-500 disabled:opacity-40"
+                >
+                  Prev
+                </button>
+                <button
+                  type="button"
+                  onClick={() => advanceTourStep(1)}
+                  className="rounded-lg border border-amber-400/45 bg-amber-500/20 px-3 py-1 font-semibold text-amber-100 transition hover:bg-amber-500/30"
+                >
+                  {tourStep >= ONBOARDING_SECTIONS.length - 1 ? 'Done' : 'Next'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTourStep(null)}
+                  aria-label="End guided tour"
+                  className="rounded-lg border border-slate-700 bg-slate-900 p-1.5 text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                >
+                  <X className="h-3.5 w-3.5" aria-hidden="true" />
+                </button>
+              </div>
+            </section>
 
-              <span className="mx-1 hidden h-4 w-px bg-slate-700 sm:inline-block" aria-hidden="true" />
-
-              <button
-                type="button"
-                disabled={tourStep === 0}
-                onClick={() => setTourStep((s) => (s !== null ? Math.max(0, s - 1) : 0))}
-                className="rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 font-medium text-slate-200 transition hover:border-slate-500 disabled:opacity-40"
-              >
-                Prev
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (tourStep >= 3) {
-                    setTourStep(null);
-                  } else {
-                    const nextStep = tourStep + 1;
-                    setTourStep(nextStep);
-                    if (nextStep === 2) {
-                      setActiveView('surface3d');
-                      setMissionDockTab('timeline');
-                    }
-                  }
-                }}
-                className="rounded-lg border border-amber-400/45 bg-amber-500/20 px-3 py-1.5 font-semibold text-amber-100 transition hover:bg-amber-500/30"
-              >
-                {tourStep >= 3 ? 'Done' : 'Next'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setTourStep(null)}
-                aria-label="End guided tour"
-                className="rounded-lg border border-slate-700 bg-slate-900 p-1.5 text-slate-300 transition hover:bg-slate-800 hover:text-white"
-              >
-                <X className="h-3.5 w-3.5" aria-hidden="true" />
-              </button>
-            </div>
-          </section>
+            {(activeTourSection.id === 'header' || activeTourSection.id === 'workspaces') &&
+              renderSectionGuideCard(activeTourSection.id)}
+          </div>
         )}
 
         {/* Alert / Notice Banners */}
@@ -2145,10 +2426,16 @@ export function App(): React.ReactElement {
         {isSpatialWorkspace && (
           <div className="cosmic-fade-in space-y-4">
             {/* Slim NASA Eyes Command & Telemetry Control Strip */}
-            <section
-              aria-label="Simulation HUD controls and coordinate probe"
-              className="nasa-panel flex flex-wrap items-center justify-between gap-2.5 rounded-2xl px-3.5 py-2.5"
-            >
+            <div data-tour-section="hud_probe" className="lg:scroll-mt-36 space-y-2.5">
+              {renderSectionGuideCard('hud_probe')}
+              <section
+                aria-label="Simulation HUD controls and coordinate probe"
+                className={`nasa-panel flex flex-wrap items-center justify-between gap-2.5 rounded-2xl px-3.5 py-2.5 transition ${
+                  isTourSectionFocused('hud_probe')
+                    ? 'ring-2 ring-amber-400/90 shadow-[0_0_0_4px_rgba(251,191,36,0.16),0_0_35px_rgba(56,189,248,0.28)]'
+                    : ''
+                }`}
+              >
               {/* Left: Active 3D Relief & DEM Controls (or 2D Map label) */}
               {activeView !== 'map2d' ? (
                 <div className="flex flex-wrap items-center gap-2">
@@ -2335,6 +2622,16 @@ export function App(): React.ReactElement {
                       </option>
                     ))}
                   </select>
+
+                  <button
+                    type="button"
+                    onClick={() => startSectionTour('hud_probe')}
+                    aria-label="Explain relief scale, 240 m HD DEM, and coordinate probe controls"
+                    className="inline-flex items-center gap-1 rounded-lg border border-slate-700/80 bg-slate-900/80 px-2 py-1 text-xs font-medium text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200"
+                  >
+                    <HelpCircle className="h-3.5 w-3.5 text-cyan-300" aria-hidden="true" />
+                    <span className="hidden sm:inline">Explain</span>
+                  </button>
                 </div>
               </div>
 
@@ -2343,11 +2640,24 @@ export function App(): React.ReactElement {
                   {probeInputError}
                 </p>
               )}
-            </section>
+              </section>
+            </div>
 
             {/* HERO STAGE: View 1 (Full-Bleed 3D), View 2 (Command Split), or View 3 (2D Map & Sky) */}
             {activeView === 'surface3d' && (
-              <section aria-label="Interactive 3D lunar south pole rover simulator" className="space-y-3">
+              <section
+                data-tour-section="viewport_rover"
+                aria-label="Interactive 3D lunar south pole rover simulator"
+                className="lg:scroll-mt-36 space-y-3"
+              >
+                {renderSectionGuideCard('viewport_rover')}
+                <div
+                  className={`rounded-2xl transition ${
+                    isTourSectionFocused('viewport_rover')
+                      ? 'ring-2 ring-amber-400/90 shadow-[0_0_0_4px_rgba(251,191,36,0.16),0_0_40px_rgba(56,189,248,0.3)]'
+                      : ''
+                  }`}
+                >
                 <Lunar3DViewport
                   ephemeris={ephemeris}
                   timeIdx={timeIdx}
@@ -2427,7 +2737,16 @@ export function App(): React.ReactElement {
                       <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
                       <span>Deploy Rover to Selected Site</span>
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => startSectionTour('viewport_rover')}
+                      className="inline-flex items-center gap-1 rounded-lg border border-slate-700/80 bg-slate-900/80 px-2.5 py-1 text-xs font-medium text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200"
+                    >
+                      <HelpCircle className="h-3.5 w-3.5 text-cyan-300" aria-hidden="true" />
+                      <span>Explain 3D &amp; Rover</span>
+                    </button>
                   </div>
+                </div>
                 </div>
               </section>
             )}
@@ -2558,12 +2877,43 @@ export function App(): React.ReactElement {
             )}
 
             {/* 4 Sleek High-Contrast Visual Telemetry Gauges */}
-            <section
-              aria-label="Site and rover visual telemetry gauges"
-              className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4"
-            >
-              {/* Gauge 1: Solar Array % */}
-              <article className="nasa-panel nasa-glow-amber flex items-center justify-between gap-3 rounded-2xl p-4">
+            <div data-tour-section="kpi_gauges" className="lg:scroll-mt-36 space-y-3">
+              {renderSectionGuideCard('kpi_gauges')}
+              <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+                <div className="flex items-center gap-2 text-xs text-slate-300">
+                  <Activity className="h-3.5 w-3.5 text-amber-300" aria-hidden="true" />
+                  <span className="font-semibold uppercase tracking-wider text-slate-200">
+                    Telemetry KPIs
+                  </span>
+                  <span className="hidden text-slate-400 sm:inline">
+                    · Instantaneous solar vs. active-window DTE &amp; 240 m terrain
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => startSectionTour('kpi_gauges')}
+                  className="inline-flex items-center gap-1 rounded-lg border border-slate-700/80 bg-slate-900/80 px-2.5 py-1 text-xs font-medium text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200"
+                >
+                  <HelpCircle className="h-3.5 w-3.5 text-cyan-300" aria-hidden="true" />
+                  <span>Explain 4 KPIs &amp; %</span>
+                </button>
+              </div>
+              <section
+                aria-label="Site and rover visual telemetry gauges"
+                className={`grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 rounded-2xl transition ${
+                  isTourSectionFocused('kpi_gauges')
+                    ? 'p-1.5 ring-2 ring-cyan-400/60 shadow-[0_0_35px_rgba(56,189,248,0.22)]'
+                    : ''
+                }`}
+              >
+                {/* Gauge 1: Solar Array % */}
+                <article
+                  className={`nasa-panel nasa-glow-amber flex items-center justify-between gap-3 rounded-2xl p-4 transition ${
+                    isTourSectionFocused('kpi_gauges') && focusedKpiIndex === 0
+                      ? 'ring-2 ring-amber-400 shadow-[0_0_28px_-4px_rgba(251,191,36,0.55)]'
+                      : ''
+                  }`}
+                >
                 <div className="min-w-0 flex-1 space-y-1.5">
                   <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-amber-300">
                     <Sun className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
@@ -2606,8 +2956,14 @@ export function App(): React.ReactElement {
                 />
               </article>
 
-              {/* Gauge 2: Earth DTE Link & Window */}
-              <article className="nasa-panel nasa-glow-sky flex items-center justify-between gap-3 rounded-2xl p-4">
+                {/* Gauge 2: Earth DTE Link & Window */}
+                <article
+                  className={`nasa-panel nasa-glow-sky flex items-center justify-between gap-3 rounded-2xl p-4 transition ${
+                    isTourSectionFocused('kpi_gauges') && focusedKpiIndex === 1
+                      ? 'ring-2 ring-amber-400 shadow-[0_0_28px_-4px_rgba(251,191,36,0.55)]'
+                      : ''
+                  }`}
+                >
                 <div className="min-w-0 flex-1 space-y-1.5">
                   <div className="flex items-center justify-between gap-1">
                     <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-sky-300">
@@ -2667,8 +3023,14 @@ export function App(): React.ReactElement {
                 />
               </article>
 
-              {/* Gauge 3: 240 m Slope / Inclinometer & Rover Tilt */}
-              <article className="nasa-panel flex items-center justify-between gap-3 rounded-2xl p-4">
+                {/* Gauge 3: 240 m Slope / Inclinometer & Rover Tilt */}
+                <article
+                  className={`nasa-panel flex items-center justify-between gap-3 rounded-2xl p-4 transition ${
+                    isTourSectionFocused('kpi_gauges') && focusedKpiIndex === 2
+                      ? 'ring-2 ring-amber-400 shadow-[0_0_28px_-4px_rgba(251,191,36,0.55)]'
+                      : ''
+                  }`}
+                >
                 <div className="min-w-0 flex-1 space-y-1.5">
                   <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-300">
                     <Mountain className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
@@ -2721,8 +3083,14 @@ export function App(): React.ReactElement {
                 />
               </article>
 
-              {/* Gauge 4: Composite Viability Index & Site Target */}
-              <article className="nasa-panel nasa-glow-emerald flex items-center justify-between gap-3 rounded-2xl p-4">
+                {/* Gauge 4: Composite Viability Index & Site Target */}
+                <article
+                  className={`nasa-panel nasa-glow-emerald flex items-center justify-between gap-3 rounded-2xl p-4 transition ${
+                    isTourSectionFocused('kpi_gauges') && focusedKpiIndex === 3
+                      ? 'ring-2 ring-amber-400 shadow-[0_0_28px_-4px_rgba(251,191,36,0.55)]'
+                      : ''
+                  }`}
+                >
                 <div className="min-w-0 flex-1 space-y-1.5">
                   <div className="flex items-center justify-between gap-1">
                     <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-300">
@@ -2763,36 +3131,55 @@ export function App(): React.ReactElement {
                 />
               </article>
             </section>
+            </div>
 
             {/* Collapsible Science & Methodology Notes Accordion */}
-            <section className="nasa-panel rounded-2xl">
-              <button
-                type="button"
-                aria-expanded={scienceNotesOpen}
-                onClick={() => setScienceNotesOpen((open) => !open)}
-                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-xs font-semibold text-slate-200 transition hover:text-amber-200"
+            <div data-tour-section="science_notes" className="lg:scroll-mt-36 space-y-3">
+              {renderSectionGuideCard('science_notes')}
+              <section
+                className={`nasa-panel rounded-2xl transition ${
+                  isTourSectionFocused('science_notes')
+                    ? 'ring-2 ring-amber-400/90 shadow-[0_0_0_4px_rgba(251,191,36,0.16),0_0_35px_rgba(56,189,248,0.28)]'
+                    : ''
+                }`}
               >
-                <span className="inline-flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-amber-300" aria-hidden="true" />
-                  <span>
-                    Science &amp; Methodology Notes — {selectedSite.short_name} (
-                    {formatTerrainSourceLabel(selectedSite)})
-                  </span>
-                  {selectedSite.metrics_2m.archetype && (
-                    <span className="hidden rounded-full border border-amber-400/30 bg-amber-500/15 px-2.5 py-0.5 text-xs font-medium text-amber-200 sm:inline-flex">
-                      {selectedSite.metrics_2m.archetype}
+                <div className="flex w-full items-center justify-between gap-2 px-4 py-3">
+                  <button
+                    type="button"
+                    aria-expanded={scienceNotesOpen}
+                    onClick={() => setScienceNotesOpen((open) => !open)}
+                    className="flex min-w-0 flex-1 items-center justify-between gap-3 text-left text-xs font-semibold text-slate-200 transition hover:text-amber-200"
+                  >
+                    <span className="inline-flex min-w-0 items-center gap-2">
+                      <Sparkles className="h-4 w-4 shrink-0 text-amber-300" aria-hidden="true" />
+                      <span className="truncate">
+                        Science &amp; Methodology Notes — {selectedSite.short_name} (
+                        {formatTerrainSourceLabel(selectedSite)})
+                      </span>
+                      {selectedSite.metrics_2m.archetype && (
+                        <span className="hidden rounded-full border border-amber-400/30 bg-amber-500/15 px-2.5 py-0.5 text-xs font-medium text-amber-200 sm:inline-flex">
+                          {selectedSite.metrics_2m.archetype}
+                        </span>
+                      )}
                     </span>
-                  )}
-                </span>
-                <span className="inline-flex items-center gap-1 text-slate-400">
-                  <span>{scienceNotesOpen ? 'Hide' : 'Expand'}</span>
-                  {scienceNotesOpen ? (
-                    <ChevronUp className="h-4 w-4" aria-hidden="true" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" aria-hidden="true" />
-                  )}
-                </span>
-              </button>
+                    <span className="inline-flex shrink-0 items-center gap-1 text-slate-400">
+                      <span>{scienceNotesOpen ? 'Hide' : 'Expand'}</span>
+                      {scienceNotesOpen ? (
+                        <ChevronUp className="h-4 w-4" aria-hidden="true" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                      )}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => startSectionTour('science_notes')}
+                    className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-slate-700/80 bg-slate-900/80 px-2.5 py-1 text-xs font-medium text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200"
+                  >
+                    <HelpCircle className="h-3.5 w-3.5 text-cyan-300" aria-hidden="true" />
+                    <span className="hidden sm:inline">Explain Notes</span>
+                  </button>
+                </div>
 
               {scienceNotesOpen && (
                 <div className="space-y-3 border-t border-slate-800/80 px-4 py-3.5 text-xs text-slate-300">
@@ -2886,10 +3273,24 @@ export function App(): React.ReactElement {
                   </div>
                 </div>
               )}
-            </section>
+              </section>
+            </div>
 
             {/* Integrated Bottom Mission Dock */}
-            <section aria-label="Mission timeline, sky panorama, and rover traverse dock" className="space-y-3">
+            <section
+              data-tour-section="mission_dock"
+              aria-label="Mission timeline, sky panorama, and rover traverse dock"
+              className="lg:scroll-mt-36 space-y-3"
+            >
+              {renderSectionGuideCard('mission_dock')}
+              <div
+                className={`space-y-3 rounded-2xl transition ${
+                  isTourSectionFocused('mission_dock')
+                    ? 'p-2 ring-2 ring-amber-400/90 shadow-[0_0_0_4px_rgba(251,191,36,0.16),0_0_35px_rgba(56,189,248,0.28)]'
+                    : ''
+                }`}
+              >
+              <div className="flex flex-wrap items-center justify-between gap-2">
               <div
                 role="tablist"
                 aria-label="Bottom mission dock views"
@@ -2934,6 +3335,15 @@ export function App(): React.ReactElement {
                 >
                   Rover Traverse Elevation Profile
                 </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => startSectionTour('mission_dock')}
+                className="inline-flex items-center gap-1 rounded-xl border border-slate-700/80 bg-slate-900/80 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200"
+              >
+                <HelpCircle className="h-3.5 w-3.5 text-cyan-300" aria-hidden="true" />
+                <span>Explain Timeline &amp; Sky</span>
+              </button>
               </div>
 
               {missionDockTab === 'timeline' && (
@@ -2980,6 +3390,7 @@ export function App(): React.ReactElement {
                   onDeployToSelected={() => handleDeployRoverToSite(selectedSite)}
                 />
               )}
+              </div>
             </section>
           </div>
         )}
@@ -3139,6 +3550,7 @@ export function App(): React.ReactElement {
         }
         onRunPreset={handleRunOnboardingPreset}
         onStartInteractiveTour={startInteractiveTour}
+        onStartSectionTour={startSectionTour}
         onOpenLearn={() => setLearnOpen(true)}
         onOpenAbout={() => setAboutOpen(true)}
       />

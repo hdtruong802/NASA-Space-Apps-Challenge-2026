@@ -6,7 +6,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { AboutModal } from '../src/components/AboutModal';
 import { CandidateFinderPanel } from '../src/components/CandidateFinderPanel';
-import { GettingStartedModal } from '../src/components/GettingStartedModal';
+import { GettingStartedModal, ONBOARDING_SECTIONS } from '../src/components/GettingStartedModal';
 import { GlossaryTerm } from '../src/components/GlossaryTerm';
 import { LearnModal } from '../src/components/LearnModal';
 import { ScenarioComparePanel } from '../src/components/ScenarioComparePanel';
@@ -700,6 +700,7 @@ describe('WP5 App Shell, Scenarios, Candidates & Copy Hygiene', () => {
         currentView: 'surface3d',
         onRunPreset: () => {},
         onStartInteractiveTour: () => {},
+        onStartSectionTour: () => {},
         onOpenLearn: () => {},
         onOpenAbout: () => {},
       }),
@@ -709,7 +710,13 @@ describe('WP5 App Shell, Scenarios, Candidates & Copy Hygiene', () => {
     expect(gettingStartedHtml).toContain('1 · Choose &amp; Quick-Start');
     expect(gettingStartedHtml).toContain('2 · 5 Workspaces');
     expect(gettingStartedHtml).toContain('Drive the 3D Rover on Connecting Ridge');
-    expect(gettingStartedHtml).toContain('Start Interactive Tour (4 Steps)');
+    expect(gettingStartedHtml).toContain('Section-by-Section Screen Map (7 Sections with Explanations)');
+    expect(gettingStartedHtml).toContain('Start Interactive Tour (7 Sections)');
+    expect(ONBOARDING_SECTIONS).toHaveLength(7);
+    for (const sec of ONBOARDING_SECTIONS) {
+      expect(sec.overview.length).toBeGreaterThan(30);
+      expect(sec.items.length).toBeGreaterThanOrEqual(4);
+    }
 
     // Keyboard & touch accessible GlossaryTerm button semantics
     const glossaryHtml = renderToStaticMarkup(
