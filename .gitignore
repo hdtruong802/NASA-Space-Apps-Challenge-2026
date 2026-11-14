@@ -24,3 +24,6 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+
+# Local submission video builds (uploaded via Google Drive / YouTube)
+submission/*.mp4

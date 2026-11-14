@@ -1,7 +1,8 @@
 # 30-Second Video Script, 5–7 Minute Live Pitch & Submission Checklist
 
-- **Team:** VeriFour (`https://www.spaceappschallenge.org/2026/find-a-team/verifour/?tab=project`)
-- **Challenge:** Lunar Landing Site Navigator (`NASA Space Apps Challenge 2026 — Hanoi`)
+- **Team:** Team VeriFour (`https://www.spaceappschallenge.org/2026/find-a-team/verifour/?tab=project`)
+- **Official Team Members (5):** `Linh Nguyen` · `Duc-Truong Hoang` · `Nguyễn Tiến` · `Le Thien Khang` · `Tran Nguyen My Anh`
+- **Challenge:** Lunar Landing Site Navigator (`NASA Space Apps Challenge 2026 — Hanoi`, aligned with `https://sepa.org.vn/huong-dan-nop-bai-nasa-space-apps-ha-noi-2026.htm#moc-thoi-gian`)
 - **Key Deadlines & Event Logistics (Hanoi Local Event — `sepa.org.vn`):**
   - **Hanoi Local Submission Snapshot Deadline:** **11:00 AM GMT+7, Sunday, November 15, 2026** *(Submit & test all links in Incognito before 10:30 AM GMT+7!)*
   - **Global Space Apps Portal Cutoff:** **11:59 PM (23:59) Local Time, Sunday, November 15, 2026**
@@ -9,23 +10,23 @@
 
 ---
 
-## 1. 30-Second Silent / Captioned Screen-Capture Demo Script (`<= 30s` Strict Rule)
+## 1. 30-Second Screen-Capture Demo Script (`<= 30s` Strict Rule)
 
-> **Rule Reminder:** If submitting a video instead of the 7-slide PDF deck (`submission/PITCH_DECK_7_SLIDES.html`), the video **MUST be `<= 30 seconds`** (28–29 seconds recommended), **in English**, with **zero NASA logos/insignias**, and hosted on YouTube (Public/Unlisted) or Google Drive with **"Anyone with the link can view"**.
+> **Rule Reminder & Companion Script:** The primary portal visual deliverable is the 7-slide deck (`submission/PITCH_DECK_7_SLIDES.pdf` / `submission/PITCH_DECK_7_SLIDES.html`), paired with upcoming `<= 30s` English pitch and `~5-minute` bilingual demo videos. For exact 26–28s 3D-first screen capture cues matching the current Cosmic Mission Control UI (including VTOL Hopper Flight `F`, 4-tab Getting Started, sticky 7-section `Explain Section` tour, and `VeriFour NASA RAG Assistant`), see **[`submission/VIDEO_30S_DEMO_SCRIPT.md`](VIDEO_30S_DEMO_SCRIPT.md)**. Video exports must remain `<= 30s` (for portal video option), **in English**, with **zero NASA logos/insignias**, and hosted with **"Anyone with the link can view"**.
 
 | Timecode | On-Screen Action (`http://localhost:5173` or Live URL at `1920×1080`) | On-Screen English Caption / Optional Narration |
 | --- | --- | --- |
-| **0:00 – 0:06** (`6s`) | Start on **Connecting Ridge Peak** in the **2D South Pole Map**. Toggle map layer from `Elevation` -> `Sun % (2m)` -> `Earth DTE %`, with the **9 Artemis III 2024 region polygons** visible, then toggle briefly to the **3D Terrain Mesh** and rotate slightly. | *"Lunar Landing Site Navigator couples NASA LRO LOLA 240 m topography with 36,216 hourly JPL Horizons steps (2026–2030) across the lunar South Pole."* |
-| **0:06 – 0:13** (`7s`) | Focus on the **360° Horizon Panorama & Sky Dome**. Switch mast height from `0.5 m` -> `2 m` -> `10 m` -> `50 m` so the ghost horizon and solar/Earth trajectories visibly update, then click an **Eclipse shortcut** on the **Mission Timeline**. | *"Evaluate 360° terrain horizon masking, mast height trade-offs from 0.5 m to 50 m, and 9 geometric lunar solar eclipses in the browser."* |
-| **0:13 – 0:21** (`8s`) | Open the **Candidate Finder Panel** (`Mode A`). Select `Artemis III Regions` or `Full Polar Map`, set `Max Slope <= 5°`, and click a top-ranked candidate (`#1`) so the map and 360° horizon jump to it; then click any crater rim on the map to drop a **Custom Probe Pin** (live ray-marched). | *"Discover top candidate sites across 62,500 polar cells and 140 refined 240 m blocks, or click anywhere on the Moon to ray-march a custom surface probe."* |
-| **0:21 – 0:29** (`8s`) | Scroll briefly to the **31-Site Comparison Table & Scenario Compare** (`Export CSV/JSON`), then open the **About & Data** modal showing the **JPL Horizons `0.000198°` validation** and **Mazarico et al. (2011) benchmark table**. Stop recording at `0:29`. | *"Compare 31 curated sites and scenarios, verified within 0.0002° of JPL Horizons and benchmarked against peer-reviewed lunar literature."* |
+| **0:00 – 0:06** (`6s`) | Start in **3D Rover & Surface** on **Connecting Ridge Peak** with **4 KPI rings** + `9` **Artemis III 2024** boundaries visible; drive rover (`WASD`) and toggle **VTOL Hopper Flight (`F` / `Fly`)** briefly over the illuminated rim. | *"Team VeriFour's Lunar Landing Site Navigator couples NASA LRO LOLA 240 m topography with 36,216 hourly JPL Horizons steps in a live 3D rover and VTOL hopper simulator."* |
+| **0:06 – 0:13** (`7s`) | Switch to **Command Split** (`2D South Pole Map` + `3D`), open **360° Horizon Panorama**, switch mast `0.5 m` -> `2 m` -> `50 m`, and jump to a **Lunar Solar Eclipse** on the Timeline. | *"Evaluate 360° terrain horizon masking, mast height trade-offs from 0.5 m to 50 m, and 9 geometric lunar solar eclipses directly in the browser."* |
+| **0:13 – 0:21** (`8s`) | Open **Candidate Directory (`Mode A`)** + click a crater rim to drop a live **Custom Probe Pin**, then open **`Explain Section`** sticky tour / **4-Tab Getting Started (`Physics & Eclipses`)** and **`NASA AI Chat`**. | *"Rank 62,500 polar cells and 140 refined 240 m blocks, ray-march custom coordinates live, explore the 7-section tour, or ask the grounded VeriFour NASA RAG Assistant."* |
+| **0:21 – 0:28** (`7s`) | Show **Compare A vs B** (`Export CSV/JSON`) and the **About & Data** modal (`0.000198°` JPL Horizons validation + **Mazarico 2011** benchmark table). Stop recording at `<= 0:28`. | *"Compare 31 curated sites and scenarios—verified within 0.0002° of JPL Horizons and backed by 78 automated tests."* |
 
 ---
 
-## 2. 5–7 Minute Live Judging Pitch Script (Hanoi Local Judging)
+## 2. 5–7 Minute Live Judging Pitch Script (Hanoi Local Judging & Upcoming 5-Min Demo Video)
 
 ### Minute 0:00 – 0:50 | Hook & The South Pole Geometry Problem (Slide 1 & Slide 2)
-- "Good morning/afternoon judges. We are **Team VeriFour**, presenting **Lunar Landing Site Navigator**."
+- "Good morning/afternoon judges. We are **Team VeriFour** — **Linh Nguyen, Duc-Truong Hoang, Nguyễn Tiến, Le Thien Khang, and Tran Nguyen My Anh** — presenting **Lunar Landing Site Navigator**."
 - "At the lunar South Pole, the Moon's **1.54-degree axial tilt** keeps the Sun skimming along the horizon. A ridge 50 kilometers away can plunge a lander into darkness for two weeks, while a peak 500 meters away enjoys over 90% sunlight. At the same time, Earth libration swings between **±6.7 degrees**, meaning high solar power does not guarantee direct-to-Earth communication."
 - "Static average maps cannot tell a mission planner what happens during a specific 14-day window in 2028, or how much a 10-meter mast reduces night duration. We built **Lunar Landing Site Navigator** to solve that interactively in the browser."
 
@@ -35,16 +36,16 @@
   2. **NASA PDS LRO LOLA (`LDEM_75S_240M`):** 240-meter-per-pixel South Pole laser altimetry (`1250×1250` fine grid inside `±150 km`, paired with a `762×762` 1,200 m/px `5×5` block-max coarse grid out to `75°S` for far-horizon ray-marching up to `200 km`).
 - "We carefully distinguish **Sun-time percentage** (`disk_frac > 0`) from **mean visible solar disk percentage** (`0.266°` solar radius), compute two-circle geometric obscuration during eclipses, and enforce the physical bound `both_visible_pct <= min(sun_time_pct, earth_visible_pct)`."
 
-### Minute 2:10 – 3:50 | Live Product Walkthrough & Candidate Finder (Slide 4)
-- **View 1 — 2D/3D South Pole Map & Custom Probe:** "On the left, users explore the ±150 km South Pole map with the **9 official Artemis III 2024 candidate region boundaries**, precomputed `250×250` illumination and Earth DTE layers, a 3D terrain mesh, and a Global Moon view. Clicking anywhere on the map lazily loads the binary LOLA DEMs and ray-marches a 360° horizon profile directly in the browser."
-- **View 2 — 360° Horizon Panorama & 2026–2030 Timeline:** "On the right, the 360° panorama and polar sky dome plot solar and Earth trajectories against the local terrain mask across mast heights from `0.5 m` to `50 m`, synchronized with a 36,216-hour mission timeline and operational window extractor."
-- **View 3 — Candidate Finder (Mode A + Mode B) & Scenario Compare:** "To move from inspection to discovery, our **Candidate Finder** ranks 62,500 polar cells and **140 refined 5×5 (240 m) summit blocks** by Composite Score, Solar Disk %, Earth DTE %, Joint %, or Shortest Night under slope and spatial-separation constraints—plus a **Mode B Web Worker** (`scanAroundWorker`) that scans custom coordinate neighborhoods live."
+### Minute 2:10 – 3:50 | Live Product Walkthrough: 3D Rover, VTOL Hopper, Onboarding & RAG Assistant (Slide 4)
+- **View 1 — 3D Rover, VTOL Hopper & Surface (`3D Rover & Surface` / `Command Split`):** "In our default Three.js cosmic stage, users drive a 6-wheel articulated rover (`WASD`, virtual pad, or click autopilot) across `240 m/px` LOLA terrain with real pitch/roll alignment—and press **`F`** (or `Fly`/`Land`) to engage **VTOL Hopper Flight Mode** (`E`/`Q` climb & descend with 4-corner thrusters and `ALT` telemetry) to inspect crater walls from above."
+- **View 2 — 4-Tab Onboarding (`GettingStartedModal.tsx`), Sticky 7-Section UI Tour (`App.tsx`) & Grounded NASA RAG Assistant (`nasaRag.ts`, `NasaRagChatbot.tsx`):** "First-time judges and students can open the **4-Tab `Getting Started & Physics` Modal** (`GettingStartedModal.tsx`, including merged Tab 4 `Physics & Eclipses` and 5 mission presets), toggle the sticky **7-Section `Explain Section` / `Explain Header` Tour** (`App.tsx`) pinned cleanly inside the header while exploring live controls, or click **`NASA AI Chat`** to ask our bilingual **VeriFour NASA RAG Assistant** (`nasaRag.ts` / `NasaRagChatbot.tsx`), which injects live telemetry, cites NASA/peer-reviewed sources, triggers 7 deep-link actions, isolates server-side OpenAI keys behind Vite's `/api/openai/chat` proxy (`vite.config.ts`, `.env.example`), and automatically engages a deterministic offline fallback with zero API dependency."
+- **View 3 — 2D Map, 360° Horizon Panorama, Timeline & Candidate Finder (`Mode A + Mode B`):** "Across **`2D Map & Sky`**, the Bottom Mission Dock, and **`Candidate Directory`**, clicking anywhere lazily loads binary LOLA DEMs to ray-march a 360° horizon across `0.5 m–50 m` masts, inspect `36,216` hourly steps, rank 62,500 polar cells + `140` refined 240 m blocks, or launch a live Mode B Web Worker (`scanAroundWorker`) and export CSV/JSON mission briefs."
 
 ### Minute 3:50 – 4:50 | Scientific Validation & Literature Cross-Check (Slide 5)
 - "We treated scientific validation as a first-class requirement:"
   - Against direct **JPL Horizons topocentric queries** across 6 lunar sites over all 36,216 hours, our maximum angular error is **0.000198° for the Sun** and **0.006016° for Earth**.
   - Inside the app's **About & Data** modal, we cross-check our live solver against **Mazarico et al. (2011)**, **Gläser et al. (2018)**, and **NASA PDS LOLA `AVGVISIB`** rasters—showing `94.3%` sun-time (`90.1%` mean disk) at Connecting Ridge (`2 m` mast) versus `93.48%` in PDS 240 m (`0 m`), and `0.0%` at Shackleton PSR Floor.
-  - All invariants are guarded by **10 Python tests** and **67 Vitest unit and integration tests** (`+ 34 todo`) in CI, plus `ρ ≥ 0.97` Viability rank-stability checks.
+  - All invariants are guarded by **10 Python tests** and **68 active Vitest unit and integration tests** (`+ 34 todo`) in CI, plus `ρ ≥ 0.97` Viability rank-stability checks.
 
 ### Minute 4:50 – 5:30 | Impact, Honest Limitations & Roadmap (Slide 6 & Slide 7)
 - "We explicitly document engineering boundaries: `240 m/px` LOLA data does not resolve meter-scale boulders or footpad slopes, so our Composite Viability Index is presented transparently as an exploratory heuristic rather than flight certification, and sites north of `75°S` report `n/a` for DEM terrain stats."
@@ -58,9 +59,9 @@
 | --- | --- |
 | **1. Impact** | Turns gigabytes of planetary geodesy and ephemeris data into a zero-backend browser tool that quantifies illumination, DTE communications, eclipse obscuration, and mast trade-offs for any 2026–2030 mission window, with exportable CSV/JSON mission briefs. |
 | **2. Creativity** | Combines dual-resolution binary DEM ray-marching (`240 m` fine + `1,200 m` block-max coarse) in the browser with a two-mode Candidate Finder (`250×250` precomputed grid + `140` refined 5×5 blocks in Mode A, plus a live Web Worker scanner in Mode B) and side-by-side Scenario Compare. |
-| **3. Validity** | Verified to `0.000198°` (Sun) and `0.006016°` (Earth) against JPL Horizons DE441 (`MOON_ME`), benchmarked in-app against Mazarico et al. (2011), Gläser et al. (2018), and NASA PDS `AVGVISIB` maps, and backed by 10 Python invariant tests + 67 Vitest tests (plus `ρ ≥ 0.97` Viability sensitivity check) with explicit non-overclaim guardrails. |
+| **3. Validity** | Verified to `0.000198°` (Sun) and `0.006016°` (Earth) against JPL Horizons DE441 (`MOON_ME`), benchmarked in-app against Mazarico et al. (2011), Gläser et al. (2018), and NASA PDS `AVGVISIB` maps, and backed by 10 Python invariant tests + 68 active Vitest tests (`+ 34 todo`, plus `ρ ≥ 0.97` Viability sensitivity check) with explicit non-overclaim guardrails. |
 | **4. Relevance** | Directly addresses every dimension of the *Lunar Landing Site Navigator* challenge using NASA JPL Horizons, NASA PDS LRO LOLA (`LDEM_75S_240M`), NASA Artemis III 2024 9 candidate regions, GSFC PGDA, LROC QuickMap, Moon Trek, and CSA resources. |
-| **5. Presentation** | Crisp dark-astronomy UI (`>= 12px` typography, collision-aware map labels, accessible modals, interactive glossary), self-contained 7-slide HTML/PDF deck, 30s video script, and exhaustive AI/SI disclosure. |
+| **5. Presentation** | Crisp dark-astronomy UI (`>= 12px` typography, collision-aware map labels, accessible modals, 4-tab `Getting Started & Physics` guide, sticky 7-section `Explain Section` UI tour, bilingual grounded `VeriFour NASA RAG Assistant`), self-contained 7-slide HTML/PDF deck, 30s & upcoming 5-min demo video scripts, Team VeriFour 5-member attribution, and exhaustive AI/SI disclosure. |
 
 ---
 
@@ -107,13 +108,17 @@
    - **EN:** Lunar elevation already spans `~14 km` across our South Pole DEM (`~-5.8 km` floor to `+8.2 km` peaks), so **`1× Real`** renders true 1:1 physical proportions (`1 m` vertical = `1 m` horizontal, accurate apparent horizon perspective from Mast POV), while **`3×–15×`** provides geological relief exaggeration standard in planetary GIS/Moon Trek tools to spot subtle terraces and crater rims from orbital overview—and hovering/selecting `1× Real` explicitly shows the distinction.
    - **VI:** Vì biên độ cao vùng cực Nam Mặt Trăng đã chênh lệch tới ~14 km giữa đáy hố và đỉnh núi, chế độ **`1× Real`** hiển thị đúng tỷ lệ vật lý **1:1 ngoài đời thật** (quan trọng khi nhìn góc nhìn camera trên cột mast của rover), trong khi **`3×–15×`** là hệ số phóng đại địa hình tiêu chuẩn trong bản đồ hành tinh để dễ phân biệt thềm dốc từ trên quỹ đạo.
 
+8. **Q: How does the `VeriFour NASA RAG Assistant` (`NASA AI Chat`) avoid AI hallucination and prevent API-key leaks in a client-side web app?**
+   - **EN:** Grounding is enforced in `webapp/src/lib/nasaRag.ts` via a curated 6-chunk corpus (`NASA_RAG_CORPUS`: data provenance, Viability formula, rover/VTOL hopper controls, 5 workspaces, physics/eclipses, and site catalog) combined with live selected-site/rover telemetry injection and 7 direct UI action deep-links in `NasaRagChatbot.tsx`. For security, `vite.config.ts` reads `OPENAI_API_KEY` solely on the server side (`server.proxy` & `preview.proxy` forwarding `/api/openai/chat` -> OpenAI) while `.env.example` leaves `VITE_OPENAI_API_KEY=` empty so no secret is ever compiled into `dist/assets/*.js`. Without an active key/proxy (such as on static GitHub/Cloudflare hosting), the assistant immediately triggers a deterministic **VeriFour offline NASA RAG fallback**.
+   - **VI:** Hệ thống chống ảo giác bằng kho tri thức 6 phần có trích dẫn (`NASA_RAG_CORPUS` trong `nasaRag.ts`) kết hợp bơm dữ liệu telemetry trực tiếp của điểm đang chọn và 7 nút điều hướng giao diện thật (`NasaRagChatbot.tsx`). Về bảo mật, `vite.config.ts` chỉ dùng `OPENAI_API_KEY` phía proxy `/api/openai/chat` và file `.env.example` để trống `VITE_OPENAI_API_KEY`, đảm bảo không rò rỉ secret vào bundle trình duyệt; khi chạy bản tĩnh không có API key, trợ lý tự chuyển sang bộ trả lời RAG ngoại tuyến xác định của VeriFour.
+
 ---
 
-## 5. Final Pre-Submission Checklist (Complete Before `10:30 AM GMT+7, Sun 15/11/2026`)
+## 5. Final Pre-Submission Checklist (Complete Before `10:30 AM GMT+7, Sun 15/11/2026` — `#moc-thoi-gian`)
 
-- [ ] **1. Push Clean Repo to Public GitHub (`NASA-Space-Apps-Challenge-2026`):** Verify `LICENSE` (Apache-2.0), `README.md`, `submission/*`, `scripts/*`, `tests/*`, and `webapp/*` are pushed and the repository visibility is **Public**.
-- [ ] **2. Deploy Static Web App (`webapp/dist`):** Deploy to Cloudflare Pages / Vercel / Netlify / GitHub Pages and insert the live URL into `README.md` and `submission/NASA_SUBMISSION_FORM.md`.
-- [ ] **3. Export 7-Slide Deck to PDF (`submission/PITCH_DECK_7_SLIDES.html`):** Open `submission/PITCH_DECK_7_SLIDES.html` in Chrome -> `Ctrl+P` -> Destination: `Save as PDF` -> Layout: `Landscape`, Margins: `None`, Background graphics: `Checked` -> Verify exactly **7 pages**.
-- [ ] **4. Upload Deck (or <=30s Video) + `USE_OF_AI_AND_SI_DISCLOSURE.md` to Google Drive:** Set sharing on both files/folders to **"Anyone with the link can view"**.
-- [ ] **5. Incognito Link Test:** Open a fresh Incognito window and verify: (a) Live Web App URL, (b) Public GitHub Repo URL, (c) 7-Slide PDF / 30s Video URL, and (d) AI/SI Disclosure Drive URL all load without sign-in prompts.
-- [ ] **6. Submit on `spaceappschallenge.org/2026/find-a-team/verifour/?tab=project`:** Paste all fields from `submission/NASA_SUBMISSION_FORM.md`, save before **11:00 AM GMT+7 Sunday 15/11**, and capture a confirmation screenshot.
+- [ ] **1. Push Clean Repo to Public GitHub (`NASA-Space-Apps-Challenge-2026`):** Verify `LICENSE` (Apache-2.0), `README.md`, `.env.example` (no secrets committed), `submission/*`, `scripts/*`, `tests/*`, and `webapp/*` are pushed and the repository visibility is **Public**.
+- [ ] **2. Deploy Static Web App (`webapp/dist`):** Deploy to `https://lunar.agentlens.dpdns.org/` and verify VTOL Hopper (`F` / `Fly`), 4-tab `Getting Started & Physics`, sticky 7-section `Explain Section`, and `VeriFour NASA RAG Assistant` offline fallback work cleanly.
+- [ ] **3. Verify 7-Slide Deck (`submission/PITCH_DECK_7_SLIDES.html` & `.pdf`):** Confirm **7 pages** (`1280×720`), crisp UTF-8 rendering of all 5 **Team VeriFour** members (`Linh Nguyen · Duc-Truong Hoang · Nguyễn Tiến · Le Thien Khang · Tran Nguyen My Anh`) on Slides 1 & 7, and the 5-criteria NASA strip on Slide 7.
+- [ ] **4. Upload Deck + Companion 30s / 5-Min Demo Videos + `USE_OF_AI_AND_SI_DISCLOSURE.md`:** Host publicly with **"Anyone with the link can view"** (ensure the portal video/deck rule is strictly respected: `<= 7` slides OR `<= 30s` English video with zero NASA logos).
+- [ ] **5. Incognito Link Test:** Open a fresh Incognito window and verify: (a) Live Web App URL, (b) Public GitHub Repo URL, (c) 7-Slide PDF / upcoming 30s Video URL, and (d) AI/SI Disclosure Drive URL all load without sign-in prompts.
+- [ ] **6. Submit on `spaceappschallenge.org/2026/find-a-team/verifour/?tab=project`:** Paste all `pageId: 1` fields from `submission/NASA_SUBMISSION_FORM.md`, save before **11:00 AM GMT+7 Sunday 15/11/2026** (Hanoi check) / **11:59 PM** (Global cutoff), and capture a confirmation screenshot.

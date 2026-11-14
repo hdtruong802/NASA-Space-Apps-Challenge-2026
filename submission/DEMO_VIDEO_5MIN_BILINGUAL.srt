@@ -1,0 +1,359 @@
+1
+00:00:00,000 --> 00:00:04,200
+Team VeriFour presents Lunar Landing Site Navigator.
+Nhóm VeriFour giới thiệu Lunar Landing Site Navigator.
+
+2
+00:00:04,200 --> 00:00:08,600
+At the lunar South Pole, razor-thin sunlight meets deep shadow.
+Tại cực Nam Mặt Trăng, nắng sát chân trời kề bên bóng tối sâu.
+
+3
+00:00:08,600 --> 00:00:12,800
+One ridge can stay lit for weeks while craters stay frozen.
+Một sống núi sáng nhiều tuần, còn đáy hố đóng băng vĩnh viễn.
+
+4
+00:00:12,800 --> 00:00:17,200
+Built in React and Three.js, it runs live in your browser.
+Xây bằng React và Three.js, ứng dụng chạy trực tiếp trên web.
+
+5
+00:00:17,200 --> 00:00:21,600
+Switch across 31 curated sites and teleport the 3D rover.
+Chuyển đổi giữa 31 địa điểm chọn lọc và thả rover 3D ngay.
+
+6
+00:00:21,600 --> 00:00:26,000
+Sticky Explain Header and Section cards guide every control.
+Thẻ Explain Header và Explain Section giải thích từng nút.
+
+7
+00:00:26,000 --> 00:00:30,200
+Open Getting Started for a four-tab mission onboarding guide.
+Mở Getting Started để xem hướng dẫn nhiệm vụ gồm bốn thẻ.
+
+8
+00:00:30,200 --> 00:00:34,200
+Launch one-click presets or jump into any workspace tab.
+Chạy kịch bản mẫu một chạm hoặc mở nhanh từng không gian.
+
+9
+00:00:34,200 --> 00:00:38,200
+Inspect every gauge definition and physical limit up front.
+Xem ý nghĩa từng đồng hồ đo và giới hạn vật lý ngay từ đầu.
+
+10
+00:00:38,200 --> 00:00:42,200
+Tab four explains the Moon's 1.54-degree axial tilt.
+Thẻ bốn giải thích độ nghiêng trục 1,54 độ của Mặt Trăng.
+
+11
+00:00:42,200 --> 00:00:46,200
+It shows why ±6.7-degree Earth libration shifts radio links.
+Giải thích bình động ±6,7 độ làm Trái Đất mọc lặn ra sao.
+
+12
+00:00:46,200 --> 00:00:50,000
+JPL checks and all nine eclipses stay one click away.
+Kiểm chứng JPL và chín kỳ nhật thực chỉ cách một lần nhấp.
+
+13
+00:00:50,000 --> 00:00:54,200
+Deploy the six-wheel rover on real 240-meter LOLA terrain.
+Triển khai rover sáu bánh trên địa hình LOLA 240 mét thực.
+
+14
+00:00:54,200 --> 00:00:58,400
+Drive with WASD, virtual keys, or click-to-drive autopilot.
+Lái bằng WASD, phím ảo, hoặc nhấp địa hình để xe tự hành.
+
+15
+00:00:58,400 --> 00:01:02,600
+Press F for Fly/Land VTOL Hopper mode to soar over craters.
+Nhấn F bật chế độ bay Fly/Land VTOL vượt qua miệng hố sâu.
+
+16
+00:01:02,600 --> 00:01:06,800
+Shift gears from 1x real drive speed up to 1000x survey warp.
+Đổi năm cấp tốc độ từ 1× thực tế đến 1000× khảo sát nhanh.
+
+17
+00:01:06,800 --> 00:01:11,000
+Switch four cameras: Chase, Mast POV, Orbit, and Free Cam.
+Chuyển bốn góc máy: Chase, Mast POV, Orbit và Free Cam.
+
+18
+00:01:11,000 --> 00:01:15,400
+Compare true 1x Real scale against 6x geological relief.
+Đối chiếu tỷ lệ thật 1× Real với địa hình phóng đại 6×.
+
+19
+00:01:15,400 --> 00:01:19,600
+Overlay five live 3D shaders: Regolith, Sun, Earth, Slope.
+Phủ năm lớp 3D trực tiếp: Regolith, Sun, Earth và Slope.
+
+20
+00:01:19,600 --> 00:01:23,800
+Composite blends power, communications, and slope together.
+Lớp Composite kết hợp năng lượng, liên lạc và độ dốc.
+
+21
+00:01:23,800 --> 00:01:28,000
+Notice the J2000 starfield, glowing Sun, and Earth DTE beam.
+Quan sát bầu trời sao J2000, Mặt Trời và tia DTE Trái Đất.
+
+22
+00:01:28,000 --> 00:01:32,200
+Four circular telemetry rings track live site physics.
+Bốn vòng đo trực tiếp theo dõi vật lý tại vị trí hiện tại.
+
+23
+00:01:32,200 --> 00:01:36,600
+Solar Array contrasts vertical tracking against flat panels.
+Vòng Solar Array so sánh pin xoay đứng với pin đặt nằm ngang.
+
+24
+00:01:36,600 --> 00:01:41,000
+Earth DTE tracks active-window links with 0, 2, or 5° masks.
+Earth DTE đo liên lạc cửa sổ kèm mặt nạ góc ngẩng 0, 2, 5°.
+
+25
+00:01:41,000 --> 00:01:45,400
+240 m Slope pairs regional terrain with live rover tilt.
+Thẻ 240 m Slope ghép độ dốc vùng với góc nghiêng xe thực.
+
+26
+00:01:45,400 --> 00:01:49,800
+Viability Index scores 4.1-year power, comms, and darkness.
+Viability Index chấm điểm 4,1 năm về điện, liên lạc, đêm dài.
+
+27
+00:01:49,800 --> 00:01:54,000
+Science & Methodology Notes reveal provenance and ±240m drift.
+Mục Science & Methodology Notes mở nguồn tọa độ và sai số ±240 m.
+
+28
+00:01:54,000 --> 00:01:58,200
+Below, the Mission Timeline spans 36,216 hourly steps.
+Bên dưới, thanh thời gian phủ 36.216 bước giờ 2026–2030.
+
+29
+00:01:58,200 --> 00:02:02,400
+Scrub any UTC hour from November 2026 through 2030.
+Kéo đến bất kỳ giờ UTC nào từ tháng 11/2026 hết năm 2030.
+
+30
+00:02:02,400 --> 00:02:06,600
+Inspect 14-day hourly strips for Sun, Earth, and Joint ops.
+Xem dải giờ 14 ngày của Nắng, Trái Đất và cửa sổ đồng thời.
+
+31
+00:02:06,600 --> 00:02:11,000
+The 50-Month Launch Sensitivity strip reveals weekly shifts.
+Biểu đồ 50-Month Launch Sensitivity chỉ ra biến động theo tuần.
+
+32
+00:02:11,000 --> 00:02:15,400
+Test how launching a week later changes joint mission uptime.
+Thử lùi ngày phóng một tuần để thấy tỷ lệ vận hành thay đổi.
+
+33
+00:02:15,400 --> 00:02:19,800
+Jump straight to any of nine cataloged lunar solar eclipses.
+Nhảy thẳng tới một trong chín kỳ nhật thực từ Mặt Trăng.
+
+34
+00:02:19,800 --> 00:02:22,900
+Watch the Dec 31, 2028 total eclipse unfold.
+Quan sát nhật thực toàn phần ngày 31/12/2028.
+
+35
+00:02:22,900 --> 00:02:26,000
+The 3D Sun dims red as array output drops.
+Mặt Trời 3D chuyển đỏ sẫm và công suất pin tụt giảm.
+
+36
+00:02:26,000 --> 00:02:30,000
+Open 360° Horizon Sky & Panorama to see local ridges.
+Mở tab 360° Horizon Sky & Panorama xem đường chân trời.
+
+37
+00:02:30,000 --> 00:02:34,000
+Solar and Earth paths trace cleanly above the terrain mask.
+Đường đi Mặt Trời và Trái Đất hiện rõ trên nền dãy núi.
+
+38
+00:02:34,000 --> 00:02:38,200
+Slide mast height from 0.5 meters up to 50 meters tall.
+Kéo độ cao cột mast từ 0,5 mét lên tối đa 50 mét.
+
+39
+00:02:38,200 --> 00:02:42,400
+Dashed ghost horizons show how taller masts clear crater rims.
+Đường đứt nét chỉ rõ cột cao giúp vượt bóng rìa hố.
+
+40
+00:02:42,400 --> 00:02:46,200
+Beside it, the Polar Sky Dome tracks real-time azimuth.
+Bên cạnh, vòm trời cực theo dõi góc phương vị tức thời.
+
+41
+00:02:46,200 --> 00:02:50,000
+Switch to the Rover Traverse Elevation Profile tab.
+Chuyển sang tab Rover Traverse Elevation Profile.
+
+42
+00:02:50,000 --> 00:02:54,000
+Review elevation, slope, and Earth link continuity by km.
+Xem biểu đồ cao độ, độ dốc và liên lạc theo từng km đã chạy.
+
+43
+00:02:54,000 --> 00:02:58,200
+Command Split pairs 3D terrain, 2D map, and 360° sky together.
+Command Split ghép đồng bộ 3D, bản đồ 2D và bầu trời 360°.
+
+44
+00:02:58,200 --> 00:03:02,400
+Move the clock or rover once, and every panel updates in sync.
+Chỉnh giờ hay lái rover một lần, cả ba khung đều cập nhật.
+
+45
+00:03:02,400 --> 00:03:06,800
+Switch to 2D Map & Sky for the ±150 km South Pole cartography.
+Chuyển sang 2D Map & Sky xem bản đồ cực Nam phạm vi ±150 km.
+
+46
+00:03:06,800 --> 00:03:11,000
+Nine official Artemis III 2024 region polygons drape the map.
+Chín vùng ứng viên Artemis III 2024 phủ trực tiếp trên bản đồ.
+
+47
+00:03:11,000 --> 00:03:15,200
+Toggle Solar, Earth DTE, or Global Moon view for full context.
+Bật lớp Nắng, Earth DTE hoặc Global Moon xem toàn cầu.
+
+48
+00:03:15,200 --> 00:03:19,400
+Click anywhere inside 75°S to drop a Custom Probe Pin.
+Nhấp điểm bất kỳ từ 75°N để đặt Custom Probe Pin tự do.
+
+49
+00:03:19,400 --> 00:03:22,700
+The browser streams compact binary LOLA grids.
+Trình duyệt tải gọn lưới nhị phân LOLA trực tiếp.
+
+50
+00:03:22,700 --> 00:03:26,000
+It ray-marches 360 great-circle rays in 15 ms.
+Phóng 360 tia cung tròn lớn trong khoảng 15 ms.
+
+51
+00:03:26,000 --> 00:03:30,000
+Open Compare A vs B to weigh two lunar targets head-to-head.
+Mở Compare A vs B để đặt hai bãi đáp lên bàn cân trực diện.
+
+52
+00:03:30,000 --> 00:03:34,000
+Contrast sunlit ridges against Shackleton PSR or Malapert.
+So sánh sườn núi sáng với đáy hố tối Shackleton hoặc Malapert.
+
+53
+00:03:34,000 --> 00:03:38,000
+Sync timelines or give Site B its own clock and mast height.
+Đồng bộ thời gian hoặc gán giờ UTC và cột mast riêng cho B.
+
+54
+00:03:38,000 --> 00:03:42,000
+Spot why high sunlight does not guarantee high Earth DTE.
+Thấy ngay vì sao nhiều nắng chưa chắc liên lạc DTE cao.
+
+55
+00:03:42,000 --> 00:03:46,000
+Compare max night, joint windows, and 240 m slopes.
+So chuỗi đêm dài nhất, cửa sổ đồng thời và độ dốc 240 m.
+
+56
+00:03:46,000 --> 00:03:50,000
+Pick the balance of power, radio link, and terrain safety.
+Chọn phương án cân bằng giữa điện, sóng radio và địa hình.
+
+57
+00:03:50,000 --> 00:03:54,400
+Candidate Directory unifies 31 curated lunar targets.
+Candidate Directory tổng hợp 31 mục tiêu Mặt Trăng chọn lọc.
+
+58
+00:03:54,400 --> 00:03:59,000
+Mode A filters 62,500 cells across the 250×250 grid.
+Chế độ Mode A lọc 62.500 ô trên lưới cực 250×250 tính sẵn.
+
+59
+00:03:59,000 --> 00:04:03,600
+It refines 140 top 5×5 summit blocks at 240 m/px.
+Kèm 140 khối đỉnh 5×5 tinh chỉnh ở độ phân giải 240 m/px.
+
+60
+00:04:03,600 --> 00:04:08,200
+Rank picks by Viability, Sun Disk, DTE, or Shortest Night.
+Xếp hạng theo Viability, Nắng, Earth DTE hoặc Đêm ngắn nhất.
+
+61
+00:04:08,200 --> 00:04:12,800
+Mode B runs a live Web Worker scanner around any site.
+Mode B chạy bộ quét Web Worker trực tiếp quanh tọa độ chọn.
+
+62
+00:04:12,800 --> 00:04:17,400
+Click Share to copy a deep link encoding your exact state.
+Nhấn Share để sao chép liên kết giữ nguyên toàn bộ cấu hình.
+
+63
+00:04:17,400 --> 00:04:22,000
+Click Export Brief to download a full Markdown mission report.
+Nhấn Export Brief tải ngay báo cáo kỹ thuật dạng Markdown.
+
+64
+00:04:22,000 --> 00:04:26,400
+Open NASA AI Chat to launch VeriFour NASA RAG Assistant.
+Mở NASA AI Chat dùng trợ lý VeriFour NASA RAG Assistant.
+
+65
+00:04:26,400 --> 00:04:30,800
+Ask questions grounded in live telemetry and cited NASA papers.
+Hỏi đáp dựa trên thông số thực và trích dẫn bài báo NASA.
+
+66
+00:04:30,800 --> 00:04:35,000
+Built-in VeriFour fallback still works with zero API keys.
+Chế độ dự phòng của VeriFour vẫn trả lời khi chưa có API key.
+
+67
+00:04:35,000 --> 00:04:39,400
+Open About & Data to inspect full scientific validation.
+Mở About & Data để kiểm tra toàn bộ đối chứng khoa học.
+
+68
+00:04:39,400 --> 00:04:43,800
+Sun and Earth align within 0.000198° and 0.006016° of JPL.
+Sai lệch góc Mặt Trời 0,000198° và Trái Đất 0,006016° so JPL.
+
+69
+00:04:43,800 --> 00:04:48,200
+Outputs cross-check Mazarico 2011 and Barker 2023 studies.
+Kết quả đối chiếu cùng nghiên cứu Mazarico 2011 và Barker 2023.
+
+70
+00:04:48,200 --> 00:04:52,400
+240 m LOLA supports screening, not meter-scale clearance.
+Dữ liệu LOLA 240 m phục vụ sàng lọc, không thay kiểm tra đá tảng.
+
+71
+00:04:52,400 --> 00:04:56,200
+Apache-2.0 open source with zero AI-generated terrain.
+Mã nguồn mở Apache-2.0, hoàn toàn không dùng địa hình AI tạo.
+
+72
+00:04:56,200 --> 00:05:00,000
+Team VeriFour: empowering humanity's return to the Moon.
+Thực hiện bởi Team VeriFour — vì hành trình trở lại Mặt Trăng.
