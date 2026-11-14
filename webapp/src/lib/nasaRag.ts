@@ -807,7 +807,7 @@ export async function askNasaRagAssistant({
     const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
     const timeoutId =
       controller && typeof setTimeout === 'function'
-        ? setTimeout(() => controller.abort(), 16000)
+        ? setTimeout(() => controller.abort(), 25000)
         : null;
     try {
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -860,7 +860,7 @@ export async function askNasaRagAssistant({
   const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
   const timeoutId =
     controller && typeof setTimeout === 'function'
-      ? setTimeout(() => controller.abort(), 5000)
+      ? setTimeout(() => controller.abort(), 25000)
       : null;
 
   try {
