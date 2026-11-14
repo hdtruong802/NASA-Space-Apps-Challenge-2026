@@ -36,7 +36,7 @@ Lunar Landing Site Navigator is an interactive, browser-based mission planning p
 - **Portal Rule:** Provide a direct URL to **either** a maximum **7-slide presentation** (PDF/Google Slides/Drive) **or** a maximum **30-second video** (YouTube Unlisted/Public or Google Drive).
 - **Mandatory Access Check:** Permission **MUST** be set to **"Anyone with the link can view"** (test in an Incognito/Private browser window before saving!).
 - **Prepared Local Artifacts in `submission/`:**
-  - 7-Slide Self-Contained Deck (exportable to PDF via Chrome `Print -> Save as PDF`): `submission/PITCH_DECK_7_SLIDES.html`
+  - 7-Slide Visual Pitch Deck (exported PDF & standalone HTML): `submission/PITCH_DECK_7_SLIDES.pdf` & `submission/PITCH_DECK_7_SLIDES.html`
   - 30-Second Video Capture Script & 5–7 Minute Pitch Script: `submission/PITCH_AND_VIDEO_SCRIPT.md`
 
 ```text
@@ -51,8 +51,8 @@ Lunar Landing Site Navigator is an interactive, browser-based mission planning p
 - **Mandatory Access Check:** Ensure the GitHub repository (`NASA-Space-Apps-Challenge-2026`) is set to **Public** and the deployed web application URL opens without login.
 
 ```text
-Primary Live Web App URL: [TODO_TEAM_INSERT_LIVE_WEBAPP_URL]
-Public GitHub Repository URL: [TODO_TEAM_INSERT_PUBLIC_GITHUB_REPO_URL]
+Primary Live Web App URL: https://lunar.agentlens.dpdns.org/
+Public GitHub Repository URL: https://github.com/hdtruong802/NASA-Space-Apps-Challenge-2026
 ```
 
 ---
@@ -105,7 +105,7 @@ Public GitHub Repository URL: [TODO_TEAM_INSERT_PUBLIC_GITHUB_REPO_URL]
 - **Google Drive Disclosure Document Link (Upload `submission/USE_OF_AI_AND_SI_DISCLOSURE.md` to Google Drive with "Anyone with the link can view"):**
   `[TODO_TEAM_INSERT_PUBLIC_GOOGLE_DRIVE_AI_DISCLOSURE_LINK]`
 - **Short Summary Text:**
-  > Built with AI coding and research assistance (Google Antigravity IDE multi-agent swarm powered by Gemini 4 Hydrogen, Gemini 4 Argon, Gemini Flash Worker, and Claude Opus 5.5, plus pre-event exploratory benchmarking with Gemini and Claude Code) for software implementation, automated tests, and English documentation under Team VeriFour's scientific direction. Zero (0) AI-generated images, videos, imported 3D meshes, or synthetic terrain textures were used; all topography and ephemeris data derive strictly from NASA LRO LOLA (`LDEM_75S_240M`) and NASA JPL Horizons (`DE441` / `MOON_ME`).
+  > Built with AI coding and research assistance (Google Antigravity IDE using Gemini and Claude models, Anthropic Claude Code, and Chrome DevTools MCP for browser QA) for software implementation, automated tests, and English documentation under Team VeriFour's scientific direction. Zero (0) AI-generated images, videos, imported 3D meshes, or synthetic terrain textures were used; all topography and ephemeris data derive strictly from NASA LRO LOLA (`LDEM_75S_240M`) and NASA JPL Horizons (`DE441` / `MOON_ME`).
 
 ---
 
@@ -145,4 +145,4 @@ Public GitHub Repository URL: [TODO_TEAM_INSERT_PUBLIC_GITHUB_REPO_URL]
 | `Glaser et al. (2018) Illumination at the Lunar South Pole (PSS)` | `https://doi.org/10.1016/j.pss.2017.07.006` | Peer-reviewed 20 m/px @ 2 m mast illumination benchmark cross-checked in `AboutModal.tsx`. |
 | `Barker et al. (2021) Improved LOLA South Pole DEMs (PSS)` | `https://doi.org/10.1016/j.pss.2020.105119` | Peer-reviewed reference on LOLA DEM errors and polar terrain slope modeling. |
 | `Barker et al. (2023) Solar Illumination at Artemis Sites (PSJ)` | `https://doi.org/10.3847/PSJ/acf3e1` | Peer-reviewed reference on 5 m/px LOLA solar illumination across Artemis III candidate regions. |
-| `Team VeriFour Use of AI & Super Intelligence (SI) Disclosure` | `[TODO_TEAM_INSERT_PUBLIC_GOOGLE_DRIVE_AI_DISCLOSURE_LINK]` | Exhaustive chronological log of AI/SI tools (Antigravity Swarm, Gemini, Claude Code) and human scientific verification (`submission/USE_OF_AI_AND_SI_DISCLOSURE.md`). |
+| `Team VeriFour Use of AI & Super Intelligence (SI) Disclosure` | `[TODO_TEAM_INSERT_PUBLIC_GOOGLE_DRIVE_AI_DISCLOSURE_LINK]` | Transparent disclosure of AI/SI tools (Antigravity IDE, Gemini, Claude), assisted modules, zero synthetic imagery, and human scientific verification (`submission/USE_OF_AI_AND_SI_DISCLOSURE.md`). |
