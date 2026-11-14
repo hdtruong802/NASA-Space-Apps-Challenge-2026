@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { AboutModal } from './components/AboutModal';
 import { CandidateFinderPanel } from './components/CandidateFinderPanel';
+import { GettingStartedModal, type GettingStartedView } from './components/GettingStartedModal';
 import { GlossaryTerm } from './components/GlossaryTerm';
 import { HorizonSkyView } from './components/HorizonSkyView';
 import { LearnModal } from './components/LearnModal';
@@ -509,6 +510,27 @@ export function App(): React.ReactElement {
   const [playSpeedHours, setPlaySpeedHours] = useState<number>(6);
   const [learnOpen, setLearnOpen] = useState<boolean>(false);
   const [aboutOpen, setAboutOpen] = useState<boolean>(false);
+  const [gettingStartedOpen, setGettingStartedOpen] = useState<boolean>(() => {
+    try {
+      return window.localStorage.getItem('lunar-navigator-onboarding-v1') !== 'complete';
+    } catch {
+      return true;
+    }
+  });
+
+  const closeGettingStarted = useCallback(() => {
+    setGettingStartedOpen(false);
+    try {
+      window.localStorage.setItem('lunar-navigator-onboarding-v1', 'complete');
+    } catch {
+      // Keep the guide usable when browser storage is disabled.
+    }
+  }, []);
+
+  const navigateFromGettingStarted = useCallback((view: GettingStartedView) => {
+    setActiveView(view);
+    closeGettingStarted();
+  }, [closeGettingStarted]);
 
   // WP7 candidates list in memory
   const [candidates, setCandidates] = useState<SiteCandidate[]>([]);
@@ -1639,6 +1661,15 @@ export function App(): React.ReactElement {
               >
                 <Download className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>Export Brief</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setGettingStartedOpen(true)}
+                className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl border border-amber-500/35 bg-amber-500/10 px-2.5 py-1.5 text-xs font-medium text-amber-200 transition hover:bg-amber-500/20"
+              >
+                <Compass className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>Getting Started</span>
               </button>
 
               <button
@@ -2847,6 +2878,12 @@ export function App(): React.ReactElement {
       </footer>
 
       {/* Accessible Modals */}
+      <GettingStartedModal
+        open={gettingStartedOpen}
+        onClose={closeGettingStarted}
+        onNavigate={navigateFromGettingStarted}
+      />
+
       <LearnModal
         open={learnOpen}
         onClose={() => setLearnOpen(false)}
