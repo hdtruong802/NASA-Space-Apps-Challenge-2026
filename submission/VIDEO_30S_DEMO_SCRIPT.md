@@ -54,7 +54,7 @@
 > **Mẹo phát âm nhanh, rõ mic:**
 > - Ngắt nhịp rất ngắn (`<= 0.3s`) giữa 5 câu để giữ tổng thời gian quanh `26–28 giây`.
 > - Phát âm rõ các cụm tên riêng: `J-P-L Ho-ri-zons`, `C-S-A`, `three-D ro-ver`.
-> - Nếu bấm giờ thử vượt `29.0s`, chuyển ngay sang **Bản rút gọn dự phòng (`57 từ`)** ở Mục 4 để an toàn tuyệt đối dưới `30.0s`.
+> - Nếu bấm giờ thử vượt `29.0s`, chuyển ngay sang **Bản rút gọn dự phòng (`59 từ`)** ở Mục 4 để an toàn tuyệt đối dưới `30.0s`.
 
 ---
 
@@ -89,7 +89,7 @@
 
 ---
 
-## 4. Phiên Bản Dự Phòng Siêu Gọn (`57 từ` · ~`22–24 giây`)
+## 4. Phiên Bản Dự Phòng Siêu Gọn (`59 từ` · ~`23–25 giây`)
 
 Dùng bản này nếu khi bấm đồng hồ thử với bản chính bị chạm sát 29–30s hoặc muốn đọc chậm rãi, rõ từng âm tiết:
 
