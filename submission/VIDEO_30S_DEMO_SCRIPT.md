@@ -1,19 +1,19 @@
-# Kịch Bản Video Demo 30 Giây & Bảng "Check Var" (Tiến — Team VeriFour)
+# Kịch Bản Video Demo 30 Giây & Bảng "Check Var" (Team VeriFour)
 
-- **Người trình bày:** Tiến (`Nguyễn Tiến`)
+- **Người trình bày (Speaker):** `[Điền tên thành viên đọc thoại trong video]` *(thay `[Your Name]` ở câu `[0:00]` bằng tên người đọc thật của nhóm trước khi quay)*
 - **Đội thi:** **Team VeriFour** *(Lưu ý check với trưởng nhóm: trên [cổng nộp bài Space Apps](https://www.spaceappschallenge.org/2026/find-a-team/verifour/?tab=project) tên đội hiện là **`VeriFour`**, nên câu chào mặc định đọc `Team VeriFour` cho khớp 100% trang nộp; nếu nhóm đổi thành `VeriFive` thì chỉnh lại đúng 1 chữ ở `[0:00]`)*
-- **Độ dài chuẩn:** **26–28 giây** (`65 từ` tiếng Anh đọc tốc độ bình tĩnh ~140–150 từ/phút, chừa biên an toàn 2–4s dưới ngưỡng **tối đa 30.0s**)
+- **Độ dài chuẩn:** **26–28 giây** (`65–66 từ` tiếng Anh tùy tên 1–2 từ, đọc tốc độ bình tĩnh ~140–150 từ/phút, chừa biên an toàn 2–4s dưới ngưỡng **tối đa 30.0s**)
 - **Trang quay màn hình thực tế:** `https://lunar.agentlens.dpdns.org/` (`1920×1080`, tiếng Anh, **không chèn logo NASA trái phép**)
 
 ---
 
 ## 1. Lời Thoại Chính Thức Để Đọc & Check Var (Khớp Đúng 5 Mốc Của BTC)
 
-### Mốc `[0:00 – 0:02]` — Introduce yourself *(Name + Team name)* · `6 từ (~2.0s)`
+### Mốc `[0:00 – 0:02]` — Introduce yourself *(Name + Team name)* · `6–7 từ (~2.0s)`
 > **English (Đọc vào mic):**
-> `Hi, I’m Tien from Team VeriFour.`
+> `Hi, I’m [Your Name] from Team VeriFour.`
 >
-> **Dịch nghĩa để check:** Chào mọi người, em là Tiến đến từ Team VeriFour.
+> **Dịch nghĩa để check:** Chào mọi người, mình là `[Tên bạn]` đến từ Team VeriFour.
 
 ### Mốc `[0:02 – 0:05]` — Lead us in *(What challenge + What inspired us)* · `8 từ (~3.0s)`
 > **English (Đọc vào mic):**
@@ -41,10 +41,10 @@
 
 ---
 
-### Bản Ghép Liền Mạch Để Đọc Thử Với Đồng Hồ Bấm Giờ (`65 từ` — mục tiêu `26s–28s`)
+### Bản Ghép Liền Mạch Để Đọc Thử Với Đồng Hồ Bấm Giờ (`65–66 từ` — mục tiêu `26s–28s`)
 
 ```text
-[0:00] Hi, I’m Tien from Team VeriFour.
+[0:00] Hi, I’m [Your Name] from Team VeriFour.
 [0:02] Extreme polar shadows inspired our lunar landing challenge.
 [0:05] Lunar Landing Site Navigator: live 3D sunlight, Earth-link, and rover planning.
 [0:10] Using open NASA LOLA, JPL Horizons, and CSA partner resources, you drive a 3D rover, probe horizons, and rank sites.
@@ -64,7 +64,7 @@
 
 | Mốc Giờ | Lời Đang Đọc | Thao Tác Trên Màn Hình App | Ý Nghĩa Gây Ấn Tượng |
 | --- | --- | --- | --- |
-| **0:00 – 0:02** | `Hi, I’m Tien from Team VeriFour.` | Toàn cảnh **3D Rover & Surface** tại cực Nam Mặt Trăng (rover 6 bánh trên địa hình nổi + Mặt Trời thấp + bầu trời sao `J2000`). | Mở đầu bằng khung hình 3D vũ trụ chân thực ngay từ giây đầu tiên. |
+| **0:00 – 0:02** | `Hi, I’m [Your Name] from Team VeriFour.` | Toàn cảnh **3D Rover & Surface** tại cực Nam Mặt Trăng (rover 6 bánh trên địa hình nổi + Mặt Trời thấp + bầu trời sao `J2000`). | Mở đầu bằng khung hình 3D vũ trụ chân thực ngay từ giây đầu tiên. |
 | **0:02 – 0:05** | `Extreme polar shadows inspired our lunar landing challenge.` | Kéo thanh trượt thời gian hoặc xoay nhẹ camera để thấy bóng núi đổ dài cắt qua miệng hố tối PSR bên cạnh sườn núi sáng. | Nhìn thấy ngay sự tương phản sáng–tối khắc nghiệt ở cực Nam Mặt Trăng. |
 | **0:05 – 0:10** | `Lunar Landing Site Navigator: live 3D sunlight, Earth-link, and rover planning.` | Cho thấy tiêu đề app + 4 vòng KPI (`Solar Array`, `Earth DTE`, `240 m Slope & Tilt`, `Viability Index`) nhảy số live khi gạt lớp phủ sang `Composite` / `Sun`. | Thể hiện rõ tên dự án cùng 3 giá trị cốt lõi (nắng + DTE + rover). |
 | **0:10 – 0:20** | `Using open NASA LOLA, JPL Horizons, and CSA partner resources, you drive a 3D rover, probe horizons, and rank sites.` | Bấm `WASD` hoặc click trên sườn núi để **rover tự lái leo dốc**, sau đó chuyển nhanh sang tab **2D Map & Sky** hoặc **Candidate Directory** cho thấy chân trời 360° và bảng xếp hạng `Viability Index`. | Hình ảnh trên app khớp từng động từ: *drive rover → probe horizons → rank sites*. |
@@ -89,12 +89,12 @@
 
 ---
 
-## 4. Phiên Bản Dự Phòng Siêu Gọn (`59 từ` · ~`23–25 giây`)
+## 4. Phiên Bản Dự Phòng Siêu Gọn (`59–60 từ` · ~`23–25 giây`)
 
 Dùng bản này nếu khi bấm đồng hồ thử với bản chính bị chạm sát 29–30s hoặc muốn đọc chậm rãi, rõ từng âm tiết:
 
 ```text
-[0:00] Hi, I’m Tien from Team VeriFour.
+[0:00] Hi, I’m [Your Name] from Team VeriFour.
 [0:02] Grazing polar shadows inspired our lunar landing challenge.
 [0:05] Lunar Landing Site Navigator turns blind terrain into live 3D clarity.
 [0:10] With NASA LOLA, JPL Horizons, and CSA partner resources, you drive rovers, probe horizons, and rank sites.
