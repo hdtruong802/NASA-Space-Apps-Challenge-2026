@@ -1,0 +1,10 @@
+region,code,centroid_lat,centroid_lon,area_km2,source
+Peak Near Cabeus B,CB,-83.552,-68.416,399.8,QuickMap A3 Candidate Landing Regions 2024 GeoJSON (files.actgate.com/lunar/A3_9regions-lonlat-simplified.geojson); centroid = mean of simplified polygon vertices
+Haworth,HW,-86.635,-23.672,888.04,same
+Malapert Massif,MA,-85.925,-1.205,441,same
+Mons Mouton Plateau,MP,-84.290,27.425,4451.84,same
+Mons Mouton,MM,-85.409,30.837,256,same
+Nobile Rim 1,N1,-85.423,36.190,400,same
+Nobile Rim 2,N2,-83.976,57.961,400,same
+de Gerlache Rim 2,G2,-88.142,-63.662,400,same
+Slater Plain,SP,-87.256,125.218,399.8,same

@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="license" content="Apache-2.0" />
+    <meta
+      name="ai-disclosure"
+      content="Built with AI coding assistance (Antigravity multi-agent swarm, Gemini, and Claude) for code, tests, and documentation; zero AI-generated images, imported 3D meshes, or synthetic terrain textures."
+    />
+    <title>Lunar Landing Site Navigator — 7-Slide Pitch Deck | Team VeriFour</title>
+    <style>
+      :root {
+        --bg: #060913;
+        --panel: #0d1326;
+        --panel-alt: #111a33;
+        --border: #1e293b;
+        --border-accent: #334155;
+        --text: #f8fafc;
+        --muted: #cbd5e1;
+        --subtle: #94a3b8;
+        --amber: #fbbf24;
+        --sky: #38bdf8;
+        --emerald: #34d399;
+        --violet: #a78bfa;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: #02040a;
+        color: var(--text);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 16px;
+        line-height: 1.45;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .mono {
+        font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      .toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 28px;
+        background: rgba(6, 9, 19, 0.94);
+        border-bottom: 1px solid var(--border);
+        backdrop-filter: blur(8px);
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      .toolbar button {
+        background: var(--amber);
+        color: #060913;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .deck {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 28px;
+        padding: 28px 16px 60px;
+      }
+
+      .slide {
+        width: 1280px;
+        height: 720px;
+        background: radial-gradient(circle at 88% 14%, rgba(56, 189, 248, 0.09), transparent 42%),
+          radial-gradient(circle at 12% 88%, rgba(251, 191, 36, 0.08), transparent 40%),
+          var(--bg);
+        border: 1px solid var(--border-accent);
+        border-radius: 16px;
+        padding: 40px 48px 34px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+        page-break-after: always;
+        break-after: page;
+      }
+
+      .slide:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+
+      .slide-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 16px;
+      }
+
+      .eyebrow {
+        font-size: 14px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--amber);
+        margin-bottom: 6px;
+      }
+
+      h1 {
+        font-size: 46px;
+        line-height: 1.12;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+
+      h2 {
+        font-size: 30px;
+        line-height: 1.18;
+        font-weight: 800;
+        letter-spacing: -0.015em;
+      }
+
+      h3 {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--text);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 600;
+        background: var(--panel-alt);
+        border: 1px solid var(--border-accent);
+        color: var(--muted);
+        white-space: nowrap;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+
+      .grid-4 {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+      }
+
+      .card {
+        background: rgba(13, 19, 38, 0.88);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px 20px;
+      }
+
+      .card-accent-amber {
+        border-left: 4px solid var(--amber);
+      }
+
+      .card-accent-sky {
+        border-left: 4px solid var(--sky);
+      }
+
+      .card-accent-emerald {
+        border-left: 4px solid var(--emerald);
+      }
+
+      .card-accent-violet {
+        border-left: 4px solid var(--violet);
+      }
+
+      .kpi {
+        font-size: 30px;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 4px;
+      }
+
+      .kpi-label {
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      ul.clean {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      ul.clean li {
+        font-size: 15px;
+        color: var(--muted);
+        padding-left: 18px;
+        position: relative;
+      }
+
+      ul.clean li::before {
+        content: '▸';
+        position: absolute;
+        left: 0;
+        color: var(--amber);
+        font-weight: 700;
+      }
+
+      ul.clean li strong {
+        color: var(--text);
+      }
+
+      table.data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      table.data-table th,
+      table.data-table td {
+        padding: 9px 12px;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+      }
+
+      table.data-table th {
+        color: var(--subtle);
+        font-weight: 700;
+        background: rgba(17, 26, 51, 0.7);
+      }
+
+      .slide-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-top: 1px solid var(--border);
+        padding-top: 12px;
+        font-size: 14px;
+        color: var(--subtle);
+      }
+
+      .text-amber {
+        color: var(--amber);
+      }
+      .text-sky {
+        color: var(--sky);
+      }
+      .text-emerald {
+        color: var(--emerald);
+      }
+      .text-violet {
+        color: var(--violet);
+      }
+
+      @page {
+        size: 1280px 720px;
+        margin: 0;
+      }
+
+      @media print {
+        body {
+          background: var(--bg);
+        }
+        .toolbar {
+          display: none !important;
+        }
+        .deck {
+          padding: 0;
+          gap: 0;
+        }
+        .slide {
+          border: none;
+          border-radius: 0;
+          width: 1280px;
+          height: 720px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="toolbar">
+      <div>
+        <strong>Lunar Landing Site Navigator</strong> — 7-Slide Submission Deck (Team VeriFour ·
+        Hanoi 2026) · <em>Zero AI-generated imagery; print-ready 16:9 layout</em>
+      </div>
+      <button onclick="window.print()">Export to PDF (Print -> Save as PDF)</button>
+    </div>
+
+    <main class="deck">
+      <!-- SLIDE 1: COVER -->
+      <section class="slide">
+        <div class="slide-header">
+          <div>
+            <div class="eyebrow">2026 NASA Space Apps Challenge · Hanoi Local Event</div>
+            <div style="font-size: 15px; color: var(--muted)">
+              Challenge: <strong>Lunar Landing Site Navigator</strong> · Team:
+              <strong>VeriFour</strong>
+            </div>
+          </div>
+          <span class="badge mono">Schema v2.0.0 · Apache-2.0</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 22px; margin: auto 0">
+          <h1>
+            Lunar Landing Site Navigator<br />
+            <span class="text-amber" style="font-size: 34px; font-weight: 700">
+              3D South Pole Rover Simulator, Solar Illumination &amp; DTE Planner
+            </span>
+          </h1>
+          <p style="font-size: 18px; color: var(--muted); max-width: 1080px">
+            An interactive, 100% client-side cosmic mission control workspace and GPU-accelerated
+            Three.js 3D rover simulator coupling <strong>NASA LRO LOLA 240 m/px laser altimetry</strong>
+            with <strong>36,216 hourly NASA JPL Horizons (DE441 / MOON_ME) ephemeris steps</strong>
+            (2026–2030) to evaluate horizon masking, 6-wheel rover traverses, mast trade-offs,
+            lunar solar eclipses, and candidate landing sites.
+          </p>
+
+          <div class="grid-4" style="margin-top: 8px">
+            <div class="card card-accent-amber">
+              <div class="kpi text-amber mono">36,216 h</div>
+              <div class="kpi-label">
+                Hourly JPL Horizons Ephemeris<br />(Nov 2026 – Dec 2030 · 9 Eclipses)
+              </div>
+            </div>
+            <div class="card card-accent-sky">
+              <div class="kpi text-sky mono">240 m/px</div>
+              <div class="kpi-label">
+                LRO LOLA 3D Mesh &amp; Fine DEM<br />(1250&times;1250 Fine + 762&times;762 Coarse)
+              </div>
+            </div>
+            <div class="card card-accent-emerald">
+              <div class="kpi text-emerald mono">31 Sites + 3D</div>
+              <div class="kpi-label">
+                Curated Sites, 9 Artemis III<br />Polygons &amp; 6-Wheel Rover Sim
+              </div>
+            </div>
+            <div class="card card-accent-violet">
+              <div class="kpi text-violet mono">&le; 0.0002&deg;</div>
+              <div class="kpi-label">
+                Validated Sun Angular Error vs.<br />JPL Horizons (&le; 0.0061&deg; Earth)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-footer">
+          <span>Team VeriFour · Open-Source Apache License 2.0</span>
+          <span class="mono">Slide 1 / 7</span>
+        </div>
+      </section>
+
+      <!-- SLIDE 2: PROBLEM -->
+      <section class="slide">
+        <div class="slide-header">
+          <div>
+            <div class="eyebrow">1 · Mission Planning Challenge</div>
+            <h2>Why Lunar South Pole Site Selection Is a Multi-Objective Geometry Problem</h2>
+          </div>
+          <span class="badge mono">75&deg;S – 90&deg;S Polar Geometry</span>
+        </div>
+
+        <div class="grid-2" style="margin: auto 0">
+          <div class="card card-accent-amber">
+            <h3>1. Grazing Sunlight &amp; Kilometer-Scale Topographic Shadows</h3>
+            <ul class="clean">
+              <li>
+                The Moon's <strong>1.54&deg; axial tilt</strong> keeps the Sun near the horizon at
+                the South Pole; crater rims 10–150 km away cast multi-day shadows alongside
+                near-continuous illuminated peaks.
+              </li>
+              <li>
+                Moving just <strong>240–1,200 m</strong> laterally or raising a mast from
+                <strong>0.5 m to 10 m</strong> can shift solar availability from PSR darkness
+                (<strong>0%</strong>) to summit illumination (<strong>&gt;90%</strong>).
+              </li>
+              <li>
+                Partial solar disk clipping (<span class="mono">0.266&deg;</span> radius) and
+                <strong>9 lunar solar eclipses (2026–2030)</strong> directly reduce solar array
+                power during critical surface operations.
+              </li>
+            </ul>
+          </div>
+
+          <div class="card card-accent-sky">
+            <h3>2. Earth Direct-to-Earth (DTE) Libration &amp; Terrain Masking</h3>
+            <ul class="clean">
+              <li>
+                Optical/radio libration swings Earth between <strong>&plusmn;6.7&deg;</strong> in
+                latitude; without an orbital relay, ridges toward <strong>0&deg;E</strong> block
+                direct line-of-sight for days at a time.
+              </li>
+              <li>
+                High solar illumination does not guarantee simultaneous Earth DTE: true mission
+                planning requires evaluating <strong>Joint Sun + Earth visibility</strong>
+                (<span class="mono">both_visible_pct &le; min(sun_time_pct, earth_visible_pct)</span
+                >).
+              </li>
+              <li>
+                Existing static maps show 18.6-year averages at 0 m height, leaving planners unable
+                to test <strong>specific 2026–2030 arrival dates, mast heights, or custom pins</strong>.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card" style="background: rgba(17, 26, 51, 0.75)">
+          <div style="font-size: 15px; color: var(--muted)">
+            <strong class="text-emerald">Our Solution Principle:</strong> Replace static lookup
+            tables with a deterministic, browser-executable <strong>GPU 3D terrain &amp; rover
+            simulator + 360&deg; spherical horizon + hourly ephemeris workspace</strong> where every
+            site, traverse, mast height, and mission window can be explored and verified in seconds.
+          </div>
+        </div>
+
+        <div class="slide-footer">
+          <span>Lunar Landing Site Navigator · Problem Statement</span>
+          <span class="mono">Slide 2 / 7</span>
+        </div>
+      </section>
+
+      <!-- SLIDE 3: NASA DATA & PHYSICS PIPELINE -->
+      <section class="slide">
+        <div class="slide-header">
+          <div>
+            <div class="eyebrow">2 · NASA Data &amp; Deterministic Physics Architecture</div>
+            <h2>From Raw NASA PDS LOLA &amp; JPL Horizons Data to Client-Side Geometry</h2>
+          </div>
+          <span class="badge mono">Zero Backend · 9 Static Runtime Assets</span>
+        </div>
+
+        <div class="grid-3" style="margin: auto 0">
+          <div class="card card-accent-amber">
+            <h3>A. NASA Data Ingested</h3>
+            <ul class="clean">
+              <li>
+                <strong>JPL Horizons (<span class="mono">DE441 / MOON_ME</span>):</strong>
+                <span class="mono">36,216</span> hourly sub-solar &amp; sub-Earth points + Earth-Moon
+                distance (<span class="mono">2026-11-14</span> to <span class="mono">2030-12-31</span>).
+              </li>
+              <li>
+                <strong>NASA PDS LRO LOLA (<span class="mono">LDEM_75S_240M</span>):</strong>
+                240 m/px South Pole stereographic grid (<span class="mono">75&deg;S–90&deg;S</span>,
+                <span class="mono">R0 = 1,737.4 km</span>).
+              </li>
+              <li>
+                <strong>Artemis III 2024 Regions &amp; Site Provenance:</strong> 9 region polygons
+                (<span class="mono">A3_9regions</span> via LROC QuickMap) + 31 curated sites with
+                NASA/PGDA/LROC/USGS URLs.
+              </li>
+            </ul>
+          </div>
+
+          <div class="card card-accent-sky">
+            <h3>B. 360&deg; Horizon &amp; 3D Rover Physics</h3>
+            <ul class="clean">
+              <li>
+                <strong>Great-Circle Ray-Marching:</strong> 360 azimuths (<span class="mono"
+                  >1&deg;</span
+                >), 480 log-spaced samples (<span class="mono">120 m–200 km</span>) with lunar
+                curvature drop and analytic smooth-sphere dip north of <span class="mono">75&deg;S</span>.
+              </li>
+              <li>
+                <strong>Dual-Resolution Binary DEMs:</strong>
+                <span class="mono">dem_fine_240m.i16</span> (<span class="mono">1250&times;1250</span>,
+                &plusmn;150 km) + <span class="mono">dem_coarse_1200m_max.i16</span> (<span
+                  class="mono"
+                  >762&times;762</span
+                >
+                5&times;5 block-max to 75&deg;S).
+              </li>
+              <li>
+                <strong>Terrain-Normal Rover Kinematics:</strong> Bilinear <span class="mono">240 m</span>
+                height &amp; normal sampling (<span class="mono">roverPhysics.ts</span>), live
+                pitch/roll projection, <span class="mono">1&times;/10&times;/50&times;</span> gears,
+                and <span class="mono">0.08 km</span> horizon cache.
+              </li>
+            </ul>
+          </div>
+
+          <div class="card card-accent-emerald">
+            <h3>C. Illumination, Eclipses &amp; Scoring</h3>
+            <ul class="clean">
+              <li>
+                <strong>Solar Disk vs. Sun-Time:</strong> Separates
+                <span class="mono">sun_time_pct</span> (<span class="mono">disk_frac &gt; 0</span>)
+                from <span class="mono">sun_visible_pct</span> (mean visible disk fraction).
+              </li>
+              <li>
+                <strong>Two-Circle Eclipse Obscuration:</strong> Models Earth's apparent radius
+                <span class="mono">asin(6378.137/dist)</span> overlapping the
+                <span class="mono">0.266&deg;</span> solar disk across 9 eclipses.
+              </li>
+              <li>
+                <strong>Team-Defined Viability Index:</strong>
+                <span class="mono">0.35 Sun + 0.25 DTE + 0.15 Joint + 0.15 Dark + 0.10 Slope&le;5&deg;</span>.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="slide-footer">
+          <span>Data Pipeline (`scripts/`) &amp; Browser Engine (`webapp/src/lib/`)</span>
+          <span class="mono">Slide 3 / 7</span>
+        </div>
+      </section>
+
+      <!-- SLIDE 4: PRODUCT FEATURES & CANDIDATE FINDER -->
+      <section class="slide">
+        <div class="slide-header">
+          <div>
+            <div class="eyebrow">3 · Cosmic Workspace, 3D Rover Simulator &amp; Candidate Finder</div>
+            <h2>NASA Eyes-Inspired 3D Rover Simulator, Command Split &amp; Two-Mode Discovery</h2>
+          </div>
+          <span class="badge mono">3D Rover · Command Split · 360&deg; Sky · Finder</span>
+        </div>
+
+        <div class="grid-2" style="margin: auto 0">
+          <div class="card card-accent-amber">
+            <h3>1. GPU Three.js 3D Terrain &amp; 6-Wheel Rover Simulator</h3>
+            <ul class="clean">
+              <li>
+                <strong>WebGL South Pole Mesh (<span class="mono">Lunar3DViewport.tsx</span>):</strong>
+                <span class="mono">250&times;250</span> LOLA surface (<span class="mono">&plusmn;150 km</span>)
+                with 5 overlays (<span class="mono">Regolith, Sun, Earth, Slope, Composite</span>),
+                JPL solar shadows, 4,000 stars, 3D Sun corona, Earth DTE beam &amp; 9 A3 polygons.
+              </li>
+              <li>
+                <strong>Interactive 6-Wheel Rover (<span class="mono">roverPhysics.ts</span>):</strong>
+                Drive via <span class="mono">WASD</span> / Arrows / HUD pad / click-to-waypoint
+                autopilot over <span class="mono">240 m</span> <span class="mono">dem_fine_240m.i16</span>
+                with live pitch/roll alignment &amp; <span class="mono">1&times;/10&times;/50&times;</span> gears.
+              </li>
+              <li>
+                <strong>4 Camera Modes:</strong> <span class="mono">Rover Chase</span>,
+                <span class="mono">1st-Person Mast POV</span> reticle, <span class="mono">Orbit</span>,
+                &amp; <span class="mono">Free Cam / Tactical</span>, plus PSR LED headlights &amp; 160-pt trail.
+              </li>
+            </ul>
+          </div>
+
+          <div class="card card-accent-sky">
+            <h3>2. Cosmic UI, Command Split, Sky &amp; 4.1-Year Timeline</h3>
+            <ul class="clean">
+              <li>
+                <strong>5 Workspace Views &amp; Ring Gauges (<span class="mono">App.tsx</span>):</strong>
+                <span class="mono">3D Rover &amp; Surface</span> hero, synchronized
+                <span class="mono">Command Split</span> (3D + 2D Map + 360&deg; Sky),
+                <span class="mono">2D Map &amp; Sky</span>, <span class="mono">Compare A vs B</span>,
+                and <span class="mono">Candidate Directory</span>.
+              </li>
+              <li>
+                <strong>3-Tab Mission Dock:</strong> <span class="mono">14-Day Timeline &amp; Sensitivity</span>
+                (<span class="mono">36,216 h</span>, 9 eclipses), <span class="mono">360&deg; Horizon Sky</span>
+                (<span class="mono">0.5–50 m</span> ghost mast), &amp; <span class="mono">Rover Traverse Profile</span>.
+              </li>
+              <li>
+                <strong>31-Site Compare &amp; Custom Probe:</strong> Drop browser ray-marched pins,
+                expand <span class="mono">Science &amp; Methodology Notes</span>, &amp; export JSON/CSV briefs.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card card-accent-violet">
+          <h3>3. Computed Candidate Finder (<span class="mono">site_candidates.json</span> Mode A + Web Worker Mode B)</h3>
+          <div style="font-size: 15px; color: var(--muted)">
+            <strong>Mode A (Instant Grid Search):</strong> Filters &amp; ranks the precomputed
+            <span class="mono">250&times;250</span> (<span class="mono">1.2 km</span>) polar grid +
+            <strong>140 refined 5&times;5 (<span class="mono">240 m</span>) summit blocks</strong>
+            by Composite Score, Sun %, Earth DTE %, Joint %, or Shortest Night within the full map,
+            Artemis III regions, or radius—enforcing slope &amp; separation rules. <strong>Mode B
+            (Live Worker):</strong> Scans custom neighborhoods on-demand in <span class="mono">scanAroundWorker.ts</span>.
+          </div>
+        </div>
+
+        <div class="slide-footer">
+          <span>Interactive 3D Rover &amp; Decision-Support Features</span>
+          <span class="mono">Slide 4 / 7</span>
+        </div>
+      </section>
+
+      <!-- SLIDE 5: SCIENTIFIC VALIDATION & BENCHMARKS -->
+      <section class="slide">
+        <div class="slide-header">
+          <div>
+            <div class="eyebrow">4 · Scientific Validity &amp; Automated Verification</div>
+            <h2>Cross-Checked Against JPL Horizons, Peer-Reviewed Literature &amp; NASA PDS</h2>
+          </div>
+          <span class="badge mono">10 Python Tests · 62 Vitest Tests · 0 Errors</span>
+        </div>
+
+        <div style="margin: auto 0; display: flex; flex-direction: column; gap: 16px">
+          <div class="grid-2">
+            <div class="card card-accent-emerald">
+              <h3>JPL Horizons Topocentric Validation (6 Lunar Sites, 36,216 h)</h3>
+              <ul class="clean">
+                <li>
+                  Checked against direct JPL Horizons topocentric azimuth/elevation at
+                  <em>Apollo 11, Chang'e-4, Chandrayaan-3, IM-1, IM-2,</em> and
+                  <em>Connecting Ridge</em>.
+                </li>
+                <li>
+                  <strong>Max Sun Angular Error:</strong>
+                  <span class="mono text-emerald">0.000198&deg;</span> (&le; 0.0002&deg; threshold).
+                </li>
+                <li>
+                  <strong>Max Earth Angular Error:</strong>
+                  <span class="mono text-emerald">0.006016&deg;</span> (&le; 0.0061&deg; threshold).
+                </li>
+              </ul>
+            </div>
+
+            <div class="card card-accent-sky">
+              <h3>Automated Invariant &amp; Integration Test Suites</h3>
+              <ul class="clean">
+                <li>
+                  <strong>Python Pipeline (<span class="mono">10/10 passed</span>):</strong> Schema
+                  v2.0.0 contract, binary DEM byte parity vs. raw LOLA <span class="mono">.img</span>,
+                  9 Artemis polygons, and <span class="mono">both &le; min(sun, earth)</span>.
+                </li>
+                <li>
+                  <strong>Webapp Vitest (<span class="mono">62 passed + 34 todo</span>):</strong> Horizons
+                  fixtures (794 samples &times; 6 sites), custom pin parity (&le; 2 pp), WP3 map, WP4 sky,
+                  WP5 UI, WP7 Mode A/B, &amp; WP8 3D terrain/rover physics + SSR fallback (7).
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 style="margin-bottom: 6px">
+              South Pole Illumination Cross-Check (Visible In-App in <em>About &amp; Data</em> Modal)
+            </h3>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Benchmark Target</th>
+                  <th>This App (2026–2030, 240 m @ 2 m Mast)</th>
+                  <th>Mazarico et al. (2011) (240 m @ 0 m)</th>
+                  <th>Gläser et al. (2018) (20 m @ 2 m)</th>
+                  <th>NASA PDS 240 m (18.6 yr @ 0 m)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Connecting Ridge (C1)</strong></td>
+                  <td class="mono text-emerald">94.3% sun-time (90.1% disk) · 143 h dark</td>
+                  <td class="mono">89.0% mean (92.7% vis) · 141.1 h dark</td>
+                  <td class="mono">88.0% (92.1% vis) · 112 h dark</td>
+                  <td class="mono">93.48% (&plusmn;1 km max 93.48%)</td>
+                </tr>
+                <tr>
+                  <td><strong>Shackleton Rim (S)</strong></td>
+                  <td class="mono text-emerald">83.3% sun-time (77.9% disk) · 195 h dark</td>
+                  <td class="mono">86.7% mean (90.5% vis, at S)</td>
+                  <td class="mono">85.5% S0 / 82.1% S1</td>
+                  <td class="mono">81.76% (60 m &plusmn;1 km: 78.08%)</td>
+                </tr>
+                <tr>
+                  <td><strong>Malapert Massif Summit</strong></td>
+                  <td class="mono text-emerald">79.0% sun-time (75.6% disk) · 366 h dark</td>
+                  <td class="mono">—</td>
+                  <td class="mono">—</td>
+                  <td class="mono">72.98% (&plusmn;1 km max 82.01%)</td>
+                </tr>
+                <tr>
+                  <td><strong>Shackleton PSR Floor</strong></td>
+                  <td class="mono text-emerald">0.0% sun-time (0.0% disk) · permanent shadow</td>
+                  <td class="mono">—</td>
+                  <td class="mono">—</td>
+                  <td class="mono">0.00% (240 m &amp; 60 m PDS)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="slide-footer">
+          <span>Validation &amp; Literature Cross-Check</span>
+          <span class="mono">Slide 5 / 7</span>
+        </div>
+      </section>
+
+      <!-- SLIDE 6: IMPACT, LIMITATIONS & EXTENSIONS -->
+      <section class="slide">
+        <div class="slide-header">
+          <div>
+            <div class="eyebrow">5 · Mission Impact, Scientific Honesty &amp; Roadmap</div>
+            <h2>Practical Value Today &amp; High-Resolution Extensions for Artemis Missions</h2>
+          </div>
+          <span class="badge mono">Honest Engineering Boundaries</span>
+        </div>
+
+        <div class="grid-3" style="margin: auto 0">
+          <div class="card card-accent-emerald">
+            <h3>Immediate Mission &amp; Educational Impact</h3>
+            <ul class="clean">
+              <li>
+                <strong>Zero-Barrier 3D &amp; Data Access:</strong> Static browser execution lets
+                engineers, students, and planners drive 3D rover traverses and inspect 36,216 h of
+                LOLA + Horizons geometry with zero server setup.
+              </li>
+              <li>
+                <strong>Actionable Trade-Offs:</strong> Quantifies how mast height (<span
+                  class="mono"
+                  >0.5 m &rarr; 50 m</span
+                >) and arrival epoch change solar continuity and DTE communication gaps.
+              </li>
+              <li>
+                <strong>Reproducible Briefs:</strong> Exports structured JSON/CSV comparison briefs
+                with full provenance metadata and URL state sharing.
+              </li>
+            </ul>
+          </div>
+
+          <div class="card card-accent-amber">
+            <h3>Explicit Model Limitations</h3>
+            <ul class="clean">
+              <li>
+                <strong>240 m/px Terrain &amp; Rover Baseline:</strong> <span class="mono">LDEM_75S_240M</span>
+                does not resolve meter-scale boulders, footpad hazards, or regolith terramechanics;
+                scores and rover tilt reflect exploratory decision-support fidelity, not certification.
+              </li>
+              <li>
+                <strong>South Pole DEM Domain:</strong> Sites north of <span class="mono">75&deg;S</span>
+                report <span class="mono">n/a</span> for DEM terrain stats and use analytic spherical
+                dip.
+              </li>
+              <li>
+                <strong>Geometric Scope:</strong> Relative array power (<span class="mono">%</span>)
+                and DTE omit thermal derating, dust, RF link margins, and Earth atmospheric
+                refraction during eclipses.
+              </li>
+            </ul>
+          </div>
+
+          <div class="card card-accent-sky">
+            <h3>Next-Stage Technical Roadmap</h3>
+            <ul class="clean">
+              <li>
+                <strong>Multi-Scale LOLA 5 m/px &amp; LROC NAC DTMs:</strong> Stream NASA GSFC
+                PGDA 5 mpp tiles into the Three.js mesh for meter-scale local hazard and rover
+                refinement around top Mode A candidates.
+              </li>
+              <li>
+                <strong>Lunar Relay Orbiters:</strong> Add Lunar Gateway NRHO and elliptical relay
+                ephemerides for far-side and ridge-masked sites.
+              </li>
+              <li>
+                <strong>Battery SoC &amp; Energy-Optimal Routing:</strong> Couple rover kinematics
+                and hourly array fractions with battery state-of-charge A* pathfinding between PSRs
+                and sunlit ridges.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="slide-footer">
+          <span>Impact, Limitations &amp; Roadmap</span>
+          <span class="mono">Slide 6 / 7</span>
+        </div>
+      </section>
+
+      <!-- SLIDE 7: TEAM, REFERENCES & AI/SI DISCLOSURE -->
+      <section class="slide">
+        <div class="slide-header">
+          <div>
+            <div class="eyebrow">6 · Team VeriFour, Open-Source Attribution &amp; AI/SI Disclosure</div>
+            <h2>Data Provenance, Peer-Reviewed Citations &amp; Transparent AI Disclosure</h2>
+          </div>
+          <span class="badge mono">Apache License 2.0</span>
+        </div>
+
+        <div class="grid-2" style="margin: auto 0">
+          <div class="card card-accent-sky">
+            <h3>Primary NASA Data &amp; Peer-Reviewed References</h3>
+            <ul class="clean">
+              <li>
+                <strong>NASA JPL Horizons System (<span class="mono">DE441 / MOON_ME</span>):</strong>
+                <span class="mono">ssd.jpl.nasa.gov/api/horizons.api</span>
+              </li>
+              <li>
+                <strong>NASA PDS LRO LOLA (<span class="mono">LDEM_75S_240M</span> &amp; <span class="mono">AVGVISIB</span>):</strong>
+                <span class="mono">pds-geosciences.wustl.edu/lro/</span>
+              </li>
+              <li>
+                <strong>NASA Artemis III 2024 Regions &amp; GSFC PGDA:</strong>
+                <span class="mono">nasa.gov</span> · <span class="mono">pgda.gsfc.nasa.gov/products/78</span> ·
+                <span class="mono">quickmap.lroc.asu.edu</span> · <span class="mono">trek.nasa.gov/moon</span>
+              </li>
+              <li>
+                <strong>Partner &amp; Gazetteer References:</strong> CSA Moon Exploration
+                (<span class="mono">asc-csa.gc.ca</span>) · IAU/USGS Planetary Nomenclature
+                (<span class="mono">planetarynames.wr.usgs.gov</span>)
+              </li>
+              <li>
+                <strong>Literature Benchmarks:</strong> Mazarico et al. (2011,
+                <span class="mono">doi:10.1016/j.icarus.2010.10.030</span>); De Rosa et al. (2012);
+                Gläser et al. (2014, 2018, <span class="mono">doi:10.1016/j.pss.2017.07.006</span>);
+                Barker et al. (2021, 2023, <span class="mono">doi:10.3847/PSJ/acf3e1</span>).
+              </li>
+            </ul>
+          </div>
+
+          <div class="card card-accent-amber">
+            <h3>Use of Super Intelligence (SI) &amp; AI Disclosure</h3>
+            <ul class="clean">
+              <li>
+                <strong>Pre-Event Preparation (Nov 13, 2026, Reference Workspace):</strong>
+                <strong>Google Antigravity IDE (Gemini)</strong> and <strong>Anthropic Claude Code</strong>
+                assisted with problem analysis, JPL Horizons sub-point validation (&le;0.006&deg;),
+                240 m/px LOLA ray-marching benchmarks, and modular work-package specs (<span class="mono">WP0–WP7</span>).
+              </li>
+              <li>
+                <strong>Official Hackathon Build (Nov 14, 2026 after 09:00 GMT+7):</strong>
+                <strong>Antigravity Multi-Agent Swarm</strong> (<strong>Gemini 4 Hydrogen</strong>,
+                <strong>Gemini 4 Argon</strong>, <strong>Gemini Flash Worker</strong>, and
+                <strong>Claude Opus 5.5</strong>, with <strong>Chrome DevTools MCP</strong> QA)
+                assisted in implementing the Python pipeline, React 18 / TypeScript / Tailwind v4
+                cosmic UI, Three.js 3D rover simulator, automated tests, and documentation.
+              </li>
+              <li>
+                <strong>Zero Synthetic Media or Data:</strong> <strong>0 AI-generated images, videos,
+                imported 3D meshes, or synthetic terrain textures</strong> were used. All physical
+                formulations (<span class="mono">Q2–Q11, R1–R7</span>) and scientific cross-checks
+                were directed and verified by <strong>Team VeriFour</strong>.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="slide-footer">
+          <span>Team VeriFour · NASA Space Apps Challenge 2026 (Hanoi, Vietnam)</span>
+          <span class="mono">Slide 7 / 7</span>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

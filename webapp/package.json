@@ -1,0 +1,33 @@
+{
+  "name": "lunar-landing-site-navigator",
+  "private": true,
+  "version": "0.2.0",
+  "license": "Apache-2.0",
+  "aiDisclosure": "Built with AI coding assistance (Antigravity multi-agent swarm, Gemini, and Claude) for code, tests, and documentation; all terrain and ephemeris data derive strictly from NASA LRO LOLA and JPL Horizons with human scientific review.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@types/three": "^0.187.0",
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/node": "^22.10.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tailwindcss": "^4.0.0",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.5",
+    "vitest": "^3.2.7"
+  }
+}

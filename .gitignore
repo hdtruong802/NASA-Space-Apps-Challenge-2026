@@ -1,0 +1,26 @@
+# Dependencies & build outputs
+node_modules/
+webapp/dist/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.tsbuildinfo
+
+# Archives & large raw planetary data (reproducible via pipeline download scripts)
+*.zip
+*.img
+data/raw_tifs/
+
+# Keep compact binary DEMs and precomputed JSON assets in webapp/public/data/
+!webapp/public/data/*.i16
+!webapp/public/data/*.json
+
+# OS & editor artifacts
+.DS_Store
+Thumbs.db
+.env
+.env.local
+.env.*.local

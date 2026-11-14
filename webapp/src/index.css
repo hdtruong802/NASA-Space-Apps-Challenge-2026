@@ -1,0 +1,221 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    overflow-x: clip;
+  }
+
+  html,
+  body {
+    background-color: #03060f;
+    color: #f1f5f9;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  code,
+  pre,
+  .font-mono {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  button,
+  a,
+  select,
+  input,
+  [role="tab"],
+  [role="slider"] {
+    min-height: 24px;
+  }
+
+  :focus-visible {
+    outline: 2px solid #fbbf24;
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #040814;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #1e2d48;
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #38bdf8;
+  }
+}
+
+/* ========================= NASA Eyes / Moon Trek Cosmic Theme ========================= */
+
+@keyframes cosmicStarDrift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-18px, -12px, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes cosmicTwinkle {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+@keyframes orbitalSpinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbitalSpinReverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes cosmicFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cosmic-bg {
+  position: relative;
+  background-color: #03060f;
+  background-image:
+    radial-gradient(ellipse 85% 55% at 18% -8%, rgba(14, 165, 233, 0.16), transparent 65%),
+    radial-gradient(ellipse 70% 50% at 85% 6%, rgba(245, 158, 11, 0.11), transparent 62%),
+    radial-gradient(ellipse 65% 55% at 50% 105%, rgba(99, 102, 241, 0.12), transparent 68%),
+    linear-gradient(180deg, #03060f 0%, #050a18 48%, #040712 100%);
+}
+
+.cosmic-starfield {
+  pointer-events: none;
+  position: fixed;
+  inset: -24px;
+  z-index: 0;
+  background-image:
+    radial-gradient(1px 1px at 24px 36px, rgba(226, 232, 240, 0.65), transparent),
+    radial-gradient(1px 1px at 96px 140px, rgba(186, 230, 253, 0.55), transparent),
+    radial-gradient(1.5px 1.5px at 180px 72px, rgba(254, 240, 138, 0.55), transparent),
+    radial-gradient(1px 1px at 240px 210px, rgba(226, 232, 240, 0.45), transparent),
+    radial-gradient(1.2px 1.2px at 310px 48px, rgba(125, 211, 252, 0.55), transparent),
+    radial-gradient(1px 1px at 370px 165px, rgba(248, 250, 252, 0.4), transparent);
+  background-size: 400px 260px;
+  opacity: 0.6;
+  animation: cosmicStarDrift 90s ease-in-out infinite;
+}
+
+.cosmic-starfield-near {
+  pointer-events: none;
+  position: fixed;
+  inset: -24px;
+  z-index: 0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 54px 92px, rgba(248, 250, 252, 0.7), transparent),
+    radial-gradient(1.8px 1.8px at 195px 180px, rgba(56, 189, 248, 0.55), transparent),
+    radial-gradient(1.4px 1.4px at 290px 115px, rgba(251, 191, 36, 0.5), transparent),
+    radial-gradient(1.2px 1.2px at 420px 230px, rgba(226, 232, 240, 0.55), transparent);
+  background-size: 520px 320px;
+  animation: cosmicTwinkle 7s ease-in-out infinite;
+}
+
+.nasa-panel {
+  background: linear-gradient(160deg, rgba(10, 17, 36, 0.78) 0%, rgba(5, 9, 22, 0.86) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(56, 189, 248, 0.16);
+  box-shadow:
+    0 20px 50px -22px rgba(2, 6, 23, 0.9),
+    inset 0 1px 0 rgba(226, 232, 240, 0.08);
+}
+
+.nasa-panel-subtle {
+  background: rgba(6, 11, 24, 0.76);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  box-shadow: inset 0 1px 0 rgba(226, 232, 240, 0.05);
+}
+
+.nasa-hud-pill {
+  background: rgba(5, 10, 23, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  box-shadow: 0 10px 28px -10px rgba(0, 0, 0, 0.8);
+}
+
+.nasa-glow-amber {
+  box-shadow:
+    0 0 28px -10px rgba(251, 191, 36, 0.35),
+    inset 0 1px 0 rgba(254, 240, 138, 0.12);
+}
+
+.nasa-glow-sky {
+  box-shadow:
+    0 0 28px -10px rgba(56, 189, 248, 0.35),
+    inset 0 1px 0 rgba(186, 230, 253, 0.12);
+}
+
+.nasa-glow-emerald {
+  box-shadow:
+    0 0 28px -10px rgba(16, 185, 129, 0.35),
+    inset 0 1px 0 rgba(167, 243, 208, 0.12);
+}
+
+.orbital-ring-spin {
+  animation: orbitalSpinSlow 24s linear infinite;
+}
+
+.orbital-ring-reverse {
+  animation: orbitalSpinReverse 16s linear infinite;
+}
+
+.cosmic-fade-in {
+  animation: cosmicFadeIn 0.28s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cosmic-starfield,
+  .cosmic-starfield-near,
+  .orbital-ring-spin,
+  .orbital-ring-reverse,
+  .cosmic-fade-in {
+    animation: none !important;
+  }
+
+  * {
+    scroll-behavior: auto !important;
+  }
+}
