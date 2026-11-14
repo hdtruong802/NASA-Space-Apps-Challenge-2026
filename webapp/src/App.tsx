@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Activity,
   AlertTriangle,
-  BookOpen,
   ChevronDown,
   ChevronUp,
   Columns2,
@@ -40,7 +39,6 @@ import {
 } from './components/GettingStartedModal';
 import { GlossaryTerm } from './components/GlossaryTerm';
 import { HorizonSkyView } from './components/HorizonSkyView';
-import { LearnModal } from './components/LearnModal';
 import { Lunar3DViewport, type SurfaceOverlayLayer } from './components/Lunar3DViewport';
 import { MissionTimeline } from './components/MissionTimeline';
 import { PolarMapCanvas } from './components/PolarMapCanvas';
@@ -515,7 +513,7 @@ export function App(): React.ReactElement {
   const [showSphericalRef, setShowSphericalRef] = useState<boolean>(true);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [playSpeedHours, setPlaySpeedHours] = useState<number>(6);
-  const [learnOpen, setLearnOpen] = useState<boolean>(false);
+  const [gettingStartedTab, setGettingStartedTab] = useState<number>(0);
   const [aboutOpen, setAboutOpen] = useState<boolean>(false);
   const [gettingStartedOpen, setGettingStartedOpen] = useState<boolean>(() => {
     try {
@@ -1822,10 +1820,13 @@ export function App(): React.ReactElement {
               <>
                 <button
                   type="button"
-                  onClick={() => setLearnOpen(true)}
+                  onClick={() => {
+                    setGettingStartedTab(3);
+                    setGettingStartedOpen(true);
+                  }}
                   className="rounded-lg border border-sky-400/45 bg-sky-500/15 px-2.5 py-1.5 font-semibold text-sky-100 transition hover:bg-sky-500/25"
                 >
-                  Open Physics &amp; Guide
+                  Open Physics &amp; Eclipses
                 </button>
               </>
             )}
@@ -2104,20 +2105,14 @@ export function App(): React.ReactElement {
 
               <button
                 type="button"
-                onClick={() => setGettingStartedOpen(true)}
+                onClick={() => {
+                  setGettingStartedTab(0);
+                  setGettingStartedOpen(true);
+                }}
                 className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl border border-amber-500/35 bg-amber-500/10 px-2.5 py-1.5 text-xs font-medium text-amber-200 transition hover:bg-amber-500/20"
               >
                 <Compass className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>Getting Started</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setLearnOpen(true)}
-                className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl border border-sky-500/40 bg-sky-500/15 px-2.5 py-1.5 text-xs font-medium text-sky-200 transition hover:bg-sky-500/25"
-              >
-                <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
-                <span>Physics &amp; Guide</span>
               </button>
 
               <button
@@ -3548,21 +3543,15 @@ export function App(): React.ReactElement {
             ? activeView
             : 'surface3d'
         }
-        onRunPreset={handleRunOnboardingPreset}
-        onStartInteractiveTour={startInteractiveTour}
-        onStartSectionTour={startSectionTour}
-        onOpenLearn={() => setLearnOpen(true)}
-        onOpenAbout={() => setAboutOpen(true)}
-      />
-
-      <LearnModal
-        open={learnOpen}
-        onClose={() => setLearnOpen(false)}
         ephemeris={ephemeris}
+        initialTab={gettingStartedTab}
         onJumpToTimestamp={(idx) => {
           setTimeIdx(idx);
           setActiveView('surface3d');
         }}
+        onRunPreset={handleRunOnboardingPreset}
+        onStartInteractiveTour={startInteractiveTour}
+        onStartSectionTour={startSectionTour}
         onOpenAbout={() => setAboutOpen(true)}
       />
 

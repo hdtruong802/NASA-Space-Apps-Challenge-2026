@@ -698,10 +698,11 @@ describe('WP5 App Shell, Scenarios, Candidates & Copy Hygiene', () => {
         onClose: () => {},
         onNavigate: () => {},
         currentView: 'surface3d',
+        ephemeris: eph,
+        onJumpToTimestamp: () => {},
         onRunPreset: () => {},
         onStartInteractiveTour: () => {},
         onStartSectionTour: () => {},
-        onOpenLearn: () => {},
         onOpenAbout: () => {},
       }),
     );
@@ -709,6 +710,8 @@ describe('WP5 App Shell, Scenarios, Candidates & Copy Hygiene', () => {
     expect(gettingStartedHtml).toContain('aria-modal="true"');
     expect(gettingStartedHtml).toContain('1 · Choose &amp; Quick-Start');
     expect(gettingStartedHtml).toContain('2 · 5 Workspaces');
+    expect(gettingStartedHtml).toContain('3 · Read KPIs &amp; Instruments');
+    expect(gettingStartedHtml).toContain('4 · Physics &amp; Eclipses');
     expect(gettingStartedHtml).toContain('Drive the 3D Rover on Connecting Ridge');
     expect(gettingStartedHtml).toContain('Section-by-Section Screen Map (7 Sections with Explanations)');
     expect(gettingStartedHtml).toContain('Start Interactive Tour (7 Sections)');
@@ -717,6 +720,25 @@ describe('WP5 App Shell, Scenarios, Candidates & Copy Hygiene', () => {
       expect(sec.overview.length).toBeGreaterThan(30);
       expect(sec.items.length).toBeGreaterThanOrEqual(4);
     }
+
+    const gettingStartedPhysicsHtml = renderToStaticMarkup(
+      React.createElement(GettingStartedModal, {
+        open: true,
+        onClose: () => {},
+        onNavigate: () => {},
+        currentView: 'surface3d',
+        ephemeris: eph,
+        onJumpToTimestamp: () => {},
+        initialTab: 3,
+        onOpenAbout: () => {},
+      }),
+    );
+    expect(gettingStartedPhysicsHtml).toContain(
+      'Sun &amp; Earth Direction Checked vs JPL Horizons DE441',
+    );
+    expect(gettingStartedPhysicsHtml).toContain('0.53° solar disk diameter');
+    expect(gettingStartedPhysicsHtml).toContain('Why Earth Rises &amp; Sets (Libration)');
+    expect(gettingStartedPhysicsHtml).toContain('Solar Eclipses from the Moon');
 
     // Keyboard & touch accessible GlossaryTerm button semantics
     const glossaryHtml = renderToStaticMarkup(
