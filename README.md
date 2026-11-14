@@ -1,4 +1,6 @@
-# Lunar Landing Site Navigator
+# VeriFour: Lunar Landing Site Navigator
+
+Live demo: [click here](https://lunar.agentlens.dpdns.org/) https://lunar.agentlens.dpdns.org/ [<img src="docs/demo-preview.jpg" alt="Live demo preview" width="120" align="top">](https://lunar.agentlens.dpdns.org/)
 
 An interactive browser-based mission planning tool for evaluating solar illumination, Earth direct-to-Earth (DTE) line-of-sight visibility, and LRO LOLA South Pole topography across lunar landing sites and custom coordinates.
 
@@ -26,17 +28,17 @@ An interactive browser-based mission planning tool for evaluating solar illumina
 
 All shipped runtime files share `schema_version: "2.0.0"` and `data_version: "2026-11-14"`:
 
-| Asset | Purpose | Key Parameters |
-| --- | --- | --- |
-| `ephemeris.json` | 1-hour lunar ephemeris & eclipse catalog | `36,216` steps (`2026-11-14T00:00:00Z`–`2030-12-31T23:00:00Z`), `9` Moon-center eclipses, Horizons validation metadata |
-| `sites.json` | Curated site metrics & terrain summaries | `31` curated sites across `5` mast heights (`0.5, 2.0, 10.0, 20.0, 50.0` m); `17` with `LOLA_240M` terrain coverage, `14` `NONE` |
-| `artemis3_regions.json` | Artemis III 2024 candidate region boundaries | `9` regions (`CB, HW, MA, MP, MM, N1, N2, G2, SP`) with `rings_polar_km` & `polygon_lonlat` |
-| `polar_dem_patch.json` | Initial coarse elevation & slope layer | `250×250` grid (`1,200 m/px`, `±150 km`) |
-| `dem_manifest.json` | Binary DEM coordinate & scale metadata | Little-endian `int16` metadata (`R0 = 1,737,400.0 m`) |
-| `dem_fine_240m.i16` | High-resolution South Pole DEM (`3,125,000` B) | `1250×1250` @ `240 m/px` (`±150 km`) |
-| `dem_coarse_1200m_max.i16` | Extended South Pole horizon DEM (`1,161,288` B) | `762×762` @ `1,200 m/px` (`5×5` block-max across `75°S–90°S`) |
-| `polar_maps.json` | Precomputed illumination & DTE layers | `250×250` grid (`1,200 m/px`, `2.0 m` mast, highest `240 m` pixel per `1.2 km` cell) |
-| `site_candidates.json` | Precomputed WP7 Mode A discovery & blocks | `250×250` multi-layer maps (`2.0 m` mast, `36,216` h) + `140` refined `5×5` (`240 m/px`) pixel blocks |
+| Asset                        | Purpose                                           | Key Parameters                                                                                                                                 |
+| ---------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ephemeris.json`           | 1-hour lunar ephemeris & eclipse catalog          | `36,216` steps (`2026-11-14T00:00:00Z`–`2030-12-31T23:00:00Z`), `9` Moon-center eclipses, Horizons validation metadata                |
+| `sites.json`               | Curated site metrics & terrain summaries          | `31` curated sites across `5` mast heights (`0.5, 2.0, 10.0, 20.0, 50.0` m); `17` with `LOLA_240M` terrain coverage, `14` `NONE` |
+| `artemis3_regions.json`    | Artemis III 2024 candidate region boundaries      | `9` regions (`CB, HW, MA, MP, MM, N1, N2, G2, SP`) with `rings_polar_km` & `polygon_lonlat`                                            |
+| `polar_dem_patch.json`     | Initial coarse elevation & slope layer            | `250×250` grid (`1,200 m/px`, `±150 km`)                                                                                               |
+| `dem_manifest.json`        | Binary DEM coordinate & scale metadata            | Little-endian `int16` metadata (`R0 = 1,737,400.0 m`)                                                                                      |
+| `dem_fine_240m.i16`        | High-resolution South Pole DEM (`3,125,000` B)  | `1250×1250` @ `240 m/px` (`±150 km`)                                                                                                   |
+| `dem_coarse_1200m_max.i16` | Extended South Pole horizon DEM (`1,161,288` B) | `762×762` @ `1,200 m/px` (`5×5` block-max across `75°S–90°S`)                                                                     |
+| `polar_maps.json`          | Precomputed illumination & DTE layers             | `250×250` grid (`1,200 m/px`, `2.0 m` mast, highest `240 m` pixel per `1.2 km` cell)                                                |
+| `site_candidates.json`     | Precomputed WP7 Mode A discovery & blocks         | `250×250` multi-layer maps (`2.0 m` mast, `36,216` h) + `140` refined `5×5` (`240 m/px`) pixel blocks                            |
 
 ## How to run
 
@@ -136,6 +138,7 @@ In compliance with NASA Space Apps Challenge 2026 rules, **Team VeriFour** discl
 ## Third-party code and references
 
 Web application dependencies (`webapp/package.json`):
+
 - `react`, `react-dom` (`^18.3.1`) — MIT
 - `three` (`^0.187.0`), `@types/three` (`^0.187.0`) — MIT
 - `lucide-react` (`^0.468.0`) — ISC
@@ -146,6 +149,7 @@ Web application dependencies (`webapp/package.json`):
 - `@types/node` (`^22.10.0`), `@types/react` (`^18.3.12`), `@types/react-dom` (`^18.3.1`) — MIT
 
 Python pipeline dependencies (`requirements-pipeline.txt`):
+
 - `numpy`, `pandas`, `scipy` — BSD-3-Clause
 - `requests` — Apache-2.0
 - `pytest` — MIT
