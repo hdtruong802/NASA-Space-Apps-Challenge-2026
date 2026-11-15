@@ -32,6 +32,29 @@ An interactive browser-based mission planning tool for evaluating solar illumina
   - [`submission/VIDEO_30S_DEMO_SCRIPT.md`](submission/VIDEO_30S_DEMO_SCRIPT.md) — 26–28s English screen-capture script for the upcoming `<= 30s` portal demo video.
   - [`submission/PITCH_AND_VIDEO_SCRIPT.md`](submission/PITCH_AND_VIDEO_SCRIPT.md) — 5–7 minute live judging pitch & upcoming ~5-minute bilingual demo video script, Viability MCDA justification, Q&A, and submission checklist.
 
+## How we used NASA data: from EDA to the app
+
+**1. Explore first (EDA, before building).** We ran an exploratory analysis of the two core NASA datasets before writing any app code (the notebooks stay local and are not published in this repo):
+
+- **JPL Horizons:** hourly Sun/Earth sub-points on the Moon (`MOON_ME`), with no gaps or duplicates. Vector geometry on this single table reproduces Horizons' own per-site Az/El to `≤ 0.0002°` (Sun) and `≤ 0.006°` (Earth). So the app never needs to call Horizons at runtime.
+- **LRO LOLA `LDEM_75S_240M`:** a `3812×3812` int16 elevation grid (−7.76 km to +7.02 km, no empty pixels). Ray-marching the horizon over this DEM showed that **terrain decides everything**:
+  - Connecting Ridge gets about `91%` Sun with terrain but about `54%` on a smooth sphere.
+  - The Shackleton floor gets `0%` Sun and `0%` Earth.
+  - Moving about `170 m` changed Sun time by 13 points.
+  - Landing date alone swings "Sun + Earth" time from `0%` to `100%`.
+
+**2. What the EDA changed in the design.**
+
+| EDA finding | Design decision |
+| --- | --- |
+| One ephemeris table is enough for any location | Zero-backend app with a precomputed `ephemeris.json` |
+| Terrain dominates, and position and date are very sensitive | Show Sun % **and** Earth % together, with a 360° horizon panorama, a multi-year timeline and A/B compare |
+| 240 m DEM smooths near-field terrain | State the limits openly and report `n/a` outside 75°S–90°S |
+
+**3. Build.** `scripts/` turns the raw NASA files into compact browser assets (int16 DEM grids and JSON, see *Shipped data assets*). The React app ray-marches those grids in the browser to compute illumination, Earth visibility and the viability score, and uses the same DEM and Horizons Sun positions to render the 3D terrain, lighting and rover.
+
+**4. Verify.** Results are checked against Horizons topocentric tables and the literature (see *Verification summary*).
+
 ## Raw NASA data used (`data/`)
 
 The `data/` folder holds the raw NASA inputs consumed by the offline pipeline (`scripts/`), which turns them into the shipped runtime assets in `webapp/public/data/`:

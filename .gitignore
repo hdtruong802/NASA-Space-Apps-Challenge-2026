@@ -1,13 +1,36 @@
-# Dependencies & build outputs
+# JavaScript dependencies & build outputs
 node_modules/
 webapp/dist/
+coverage/
+webapp/coverage/
+*.tsbuildinfo
+
+# all the secret folders
+EDA/
+eda/    
+slide/
+
+# Python virtual environments, bytecode & test artifacts
 .venv/
+venv/
+env/
+ENV/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .pytest_cache/
-*.tsbuildinfo
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local runtime logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
 # Archives & large raw planetary data (reproducible via pipeline download scripts)
 *.zip
@@ -21,6 +44,8 @@ data/raw_tifs/
 # OS & editor artifacts
 .DS_Store
 Thumbs.db
+.idea/
+.vscode/
 .env
 .env.local
 .env.*.local
