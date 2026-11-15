@@ -27,3 +27,4 @@ Thumbs.db
 
 # Local submission video builds (uploaded via Google Drive / YouTube)
 submission/*.mp4
+drive_upload_ready/
