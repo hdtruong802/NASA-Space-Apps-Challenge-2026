@@ -1073,108 +1073,120 @@ def encode_mp4_stream(
     movflags=+faststart) to keep RAM bounded (<2.5 GB) even across 7,200+ frames.
     """
     output_mp4.parent.mkdir(parents=True, exist_ok=True)
+    tmp_mp4 = output_mp4.with_suffix(".tmp.mp4")
+    if tmp_mp4.exists():
+        tmp_mp4.unlink()
     frame_count = 0
 
-    if ffmpeg_supports_libx264(ffmpeg_exe):
-        cmd = [
-            str(ffmpeg_exe),
-            "-y",
-            "-f",
-            "rawvideo",
-            "-vcodec",
-            "rawvideo",
-            "-pix_fmt",
-            "rgb24",
-            "-s",
-            f"{WIDTH}x{HEIGHT}",
-            "-r",
-            str(FPS),
-            "-i",
-            "-",
-            "-i",
-            str(audio_wav),
-            "-c:v",
-            "libx264",
-            "-pix_fmt",
-            "yuv420p",
-            "-crf",
-            "20",
-            "-preset",
-            "medium",
-            "-c:a",
-            "aac",
-            "-b:a",
-            "192k",
-            "-movflags",
-            "+faststart",
-            "-shortest",
-            str(output_mp4),
-        ]
-        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-        assert proc.stdin is not None
-        for rgb in frames_iter:
-            proc.stdin.write(rgb.tobytes())
-            frame_count += 1
-        proc.stdin.close()
-        _, err = proc.communicate()
-        if proc.returncode != 0:
-            raise RuntimeError(f"ffmpeg libx264 failed: {err.decode('utf-8', 'replace')}")
-        return f"ffmpeg ({ffmpeg_exe.name}) libx264 crf=20 + aac 192k", frame_count
+    try:
+        if ffmpeg_supports_libx264(ffmpeg_exe):
+            cmd = [
+                str(ffmpeg_exe),
+                "-y",
+                "-f",
+                "rawvideo",
+                "-vcodec",
+                "rawvideo",
+                "-pix_fmt",
+                "rgb24",
+                "-s",
+                f"{WIDTH}x{HEIGHT}",
+                "-r",
+                str(FPS),
+                "-i",
+                "-",
+                "-i",
+                str(audio_wav),
+                "-c:v",
+                "libx264",
+                "-pix_fmt",
+                "yuv420p",
+                "-crf",
+                "20",
+                "-preset",
+                "medium",
+                "-c:a",
+                "aac",
+                "-b:a",
+                "192k",
+                "-movflags",
+                "+faststart",
+                "-shortest",
+                str(tmp_mp4),
+            ]
+            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+            assert proc.stdin is not None
+            for rgb in frames_iter:
+                proc.stdin.write(rgb.tobytes())
+                frame_count += 1
+            proc.stdin.close()
+            _, err = proc.communicate()
+            if proc.returncode != 0:
+                raise RuntimeError(f"ffmpeg libx264 failed: {err.decode('utf-8', 'replace')}")
+            encoder_desc = f"ffmpeg ({ffmpeg_exe.name}) libx264 crf=20 + aac 192k"
+        else:
+            container = av.open(str(tmp_mp4), mode="w", options={"movflags": "+faststart"})
+            try:
+                vstream = container.add_stream("libx264", rate=FPS)
+                vstream.width = WIDTH
+                vstream.height = HEIGHT
+                vstream.pix_fmt = "yuv420p"
+                vstream.options = {"crf": "20", "preset": "medium"}
 
-    container = av.open(str(output_mp4), mode="w", options={"movflags": "+faststart"})
-    vstream = container.add_stream("libx264", rate=FPS)
-    vstream.width = WIDTH
-    vstream.height = HEIGHT
-    vstream.pix_fmt = "yuv420p"
-    vstream.options = {"crf": "20", "preset": "medium"}
+                astream = container.add_stream("aac", rate=SAMPLE_RATE)
+                astream.layout = "stereo"
+                astream.bit_rate = 192_000
 
-    astream = container.add_stream("aac", rate=SAMPLE_RATE)
-    astream.layout = "stereo"
-    astream.bit_rate = 192_000
+                for idx, rgb in enumerate(frames_iter):
+                    vf = av.VideoFrame.from_ndarray(rgb, format="rgb24")
+                    vf.pts = idx
+                    for pkt in vstream.encode(vf):
+                        container.mux(pkt)
+                    frame_count += 1
+                for pkt in vstream.encode():
+                    container.mux(pkt)
 
-    for idx, rgb in enumerate(frames_iter):
-        vf = av.VideoFrame.from_ndarray(rgb, format="rgb24")
-        vf.pts = idx
-        for pkt in vstream.encode(vf):
-            container.mux(pkt)
-        frame_count += 1
-    for pkt in vstream.encode():
-        container.mux(pkt)
+                pcm_s16 = np.clip(audio_stereo * 32767.0, -32767.0, 32767.0).astype(np.int16)
+                chunk = 1024
+                pts_a = 0
+                for pos in range(0, len(pcm_s16), chunk):
+                    sl = pcm_s16[pos : pos + chunk]
+                    if len(sl) < chunk:
+                        sl = np.pad(sl, ((0, chunk - len(sl)), (0, 0)))
+                    interleaved = np.ascontiguousarray(sl.reshape(1, -1))
+                    af = av.AudioFrame.from_ndarray(interleaved, format="s16", layout="stereo")
+                    af.sample_rate = SAMPLE_RATE
+                    af.pts = pts_a
+                    pts_a += len(sl)
+                    for pkt in astream.encode(af):
+                        container.mux(pkt)
+                for pkt in astream.encode():
+                    container.mux(pkt)
+            finally:
+                container.close()
 
-    pcm_s16 = np.clip(audio_stereo * 32767.0, -32767.0, 32767.0).astype(np.int16)
-    chunk = 1024
-    pts_a = 0
-    for pos in range(0, len(pcm_s16), chunk):
-        sl = pcm_s16[pos : pos + chunk]
-        if len(sl) < chunk:
-            sl = np.pad(sl, ((0, chunk - len(sl)), (0, 0)))
-        interleaved = np.ascontiguousarray(sl.reshape(1, -1))
-        af = av.AudioFrame.from_ndarray(interleaved, format="s16", layout="stereo")
-        af.sample_rate = SAMPLE_RATE
-        af.pts = pts_a
-        pts_a += len(sl)
-        for pkt in astream.encode(af):
-            container.mux(pkt)
-    for pkt in astream.encode():
-        container.mux(pkt)
-    container.close()
+            encoder_desc = (
+                "PyAV libx264 crf=20 preset=medium yuv420p + aac 192k + faststart"
+            )
 
-    if ffmpeg_exe.exists():
-        chk = subprocess.run(
-            [str(ffmpeg_exe), "-v", "error", "-i", str(output_mp4), "-f", "null", "-"],
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            check=False,
-        )
-        if chk.returncode != 0:
-            raise RuntimeError(f"ffmpeg validation failed on {output_mp4}: {chk.stderr}")
+        if ffmpeg_exe.exists():
+            chk = subprocess.run(
+                [str(ffmpeg_exe), "-v", "error", "-i", str(tmp_mp4), "-f", "null", "-"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                check=False,
+            )
+            if chk.returncode != 0:
+                raise RuntimeError(f"ffmpeg validation failed on {tmp_mp4}: {chk.stderr}")
+            encoder_desc += " (verified via ffmpeg)"
 
-    return (
-        "PyAV libx264 crf=20 preset=medium yuv420p + aac 192k + faststart (verified via ffmpeg)",
-        frame_count,
-    )
+        tmp_mp4.replace(output_mp4)
+        return encoder_desc, frame_count
+    finally:
+        if tmp_mp4.exists():
+            tmp_mp4.unlink(missing_ok=True)
 
 
 # ---------------------------------------------------------------------------
